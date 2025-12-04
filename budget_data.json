@@ -33,15 +33,7 @@
   },
   {
     "type": "主材",
-    "name": "地漏止逆阀",
-    "total": "1500",
-    "deposit": 0,
-    "second": 0,
-    "final": 0
-  },
-  {
-    "type": "主材",
-    "name": "地漏止逆阀",
+    "name": "止逆阀地漏",
     "total": "1500",
     "deposit": 0,
     "second": 0,
