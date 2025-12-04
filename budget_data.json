@@ -22,5 +22,13 @@
     "deposit": 0,
     "second": 0,
     "final": 0
+  },
+  {
+    "type": "封窗",
+    "name": "系统窗换新",
+    "total": "78000",
+    "deposit": 0,
+    "second": 0,
+    "final": 0
   }
 ]
