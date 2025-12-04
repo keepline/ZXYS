@@ -3,40 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>装修预算 Pro v1.6</title>
+    <title>BUDGET.OS v1.7</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 引入科幻字体 Orbitron -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Base Theme */
-            --bg-base: #0f0f12;
-            --card-base-r: 30; --card-base-g: 30; --card-base-b: 30;
-            --accent: #00d4ff;
+            /* 核心变量 */
+            --bg-base: #0a0a0c;
+            --card-base-r: 20; --card-base-g: 20; --card-base-b: 25;
+            --accent: #00f2ff; /* 赛博青 */
+            --accent-secondary: #ff0055; /* 赛博红 */
             
-            /* Calculated */
-            --glass-bg: rgba(var(--card-base-r), var(--card-base-g), var(--card-base-b), 0.65);
+            /* 玻璃与光效 */
+            --glass-bg: rgba(var(--card-base-r), var(--card-base-g), var(--card-base-b), 0.7);
             --glass-border: rgba(255, 255, 255, 0.08);
-            --text-main: #e0e0e0;
-            --text-muted: #888888;
-            --danger: #ff4444;
-            --input-bg: rgba(0, 0, 0, 0.4);
+            --text-main: #f0f0f0;
+            --text-muted: #666;
+            --input-bg: rgba(0, 0, 0, 0.5);
             
-            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
         }
 
         body {
             font-family: 'Montserrat', -apple-system, "Microsoft YaHei", sans-serif;
             background-color: var(--bg-base);
+            /* 深邃宇宙背景 */
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(var(--card-base-r), var(--card-base-g), var(--card-base-b), 0.4) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(var(--card-base-r), var(--card-base-g), var(--card-base-b), 0.2) 0%, var(--bg-base) 60%);
+                radial-gradient(circle at 15% 50%, rgba(0, 242, 255, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.08) 0%, transparent 25%);
             color: var(--text-main);
             margin: 0; padding: 20px; 
             padding-bottom: calc(120px + env(safe-area-inset-bottom));
-            transition: background 0.8s ease;
             overflow-x: hidden;
         }
 
@@ -44,81 +45,114 @@
         .icon { width: 16px; height: 16px; fill: currentColor; vertical-align: text-bottom; margin-right: 4px; }
         .icon-lg { width: 24px; height: 24px; margin: 0; }
 
-        /* Glass Card */
+        /* 通用玻璃卡片 */
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 24px 20px; margin-bottom: 25px;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
-            transition: transform 0.3s var(--ease-out-expo);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 24px;
+            padding: 24px; margin-bottom: 25px;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.6);
+            position: relative; overflow: hidden;
+        }
+        /* 卡片顶部的微光条 */
+        .glass-card::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
         }
 
-        /* Header */
-        .header-box { text-align: center; margin-bottom: 35px; margin-top: 15px; position: relative; z-index: 10; }
-        h1 { 
-            font-weight: 800; letter-spacing: 2px; color: #fff; 
-            font-size: 1.6rem;
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+        /* --- 头部 LOGO 设计 (核心修改) --- */
+        .header-box { text-align: center; margin-bottom: 40px; margin-top: 20px; position: relative; z-index: 10; }
+        
+        .cyber-logo {
+            font-family: 'Orbitron', sans-serif; /* 科幻字体 */
+            font-weight: 900;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+            
+            /* 渐变文字遮罩 */
+            background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* 荧光阴影 */
+            filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.3));
         }
+        
         .version-tag {
-            font-family: 'Consolas', monospace; font-size: 0.6rem; 
-            background: rgba(255,255,255,0.05); padding: 3px 8px; 
-            border-radius: 20px; color: var(--accent); border: 1px solid rgba(255,255,255,0.1);
-            vertical-align: super; letter-spacing: 0;
+            font-family: 'Orbitron', sans-serif; font-size: 0.6rem; 
+            color: var(--accent-secondary); border: 1px solid var(--accent-secondary);
+            padding: 2px 6px; border-radius: 4px; position: absolute; top: -5px; right: -25px;
+            box-shadow: 0 0 10px var(--accent-secondary);
         }
 
         /* Config Bar */
-        .config-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; align-items: center;}
+        .config-bar { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
         .btn-config { 
-            background: rgba(255,255,255,0.03); color: #bbb; border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.03); color: #888; border: 1px solid var(--glass-border);
             padding: 8px 16px; font-size: 0.7rem; border-radius: 20px; font-weight: 600;
             display: flex; align-items: center; transition: all 0.3s; 
         }
-        .btn-config:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
-        .status-dot { height: 6px; width: 6px; border-radius: 50%; display: inline-block; background: #555; margin-right: 8px; box-shadow: 0 0 10px currentColor; }
-        .status-dot.online { background: #00ff88; color:#00ff88; }
-        .status-dot.syncing { background: #ffd700; color:#ffd700; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.5; } }
+        .btn-config:active { background: rgba(255,255,255,0.1); color: #fff; }
+        .status-dot { height: 6px; width: 6px; border-radius: 50%; display: inline-block; background: #333; margin-right: 8px; }
+        .status-dot.online { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+        .status-dot.syncing { background: #ffd700; animation: blink 0.5s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
 
-        /* Charts & Stats */
+        /* --- 视觉模块 (Avant-Garde Chart) --- */
         .visual-module { display: flex; flex-wrap: wrap; gap: 30px; }
-        .chart-box { flex: 1; min-width: 280px; height: 320px; position: relative; display: flex; justify-content: center; align-items: center; }
-        #budgetChart { filter: drop-shadow(0px 0px 20px rgba(0,0,0,0.4)); }
+        
+        /* 1. 图表容器：增加中心文字 */
+        .chart-box { 
+            flex: 1; min-width: 280px; height: 320px; position: relative; 
+            display: flex; justify-content: center; align-items: center; 
+        }
+        /* 2. 这里的 Canvas 增加滤镜，制造光晕 */
+        #budgetChart { 
+            filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.2)); 
+            z-index: 2;
+        }
+        /* 3. 中心文字覆盖层 */
+        .chart-center-text {
+            position: absolute; text-align: center; z-index: 1; pointer-events: none;
+        }
+        .chart-center-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 5px; }
+        .chart-center-value { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 700; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
 
         .stats-bars { flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center; }
-        .progress-group { margin-bottom: 18px; }
-        .progress-labels { display: flex; justify-content: space-between; font-size: 0.8em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
-        .progress-track { background: rgba(255,255,255,0.05); height: 6px; border-radius: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 1s var(--ease-out-expo); position: relative; }
-        .progress-fill::after { content:''; position: absolute; top:0; right:0; bottom:0; width: 10px; background: rgba(255,255,255,0.5); filter: blur(2px); }
+        .progress-group { margin-bottom: 20px; }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 0.8em; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+        .progress-track { background: rgba(255,255,255,0.05); height: 4px; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 2px; transition: width 1s var(--ease-expo); position: relative; box-shadow: 0 0 15px currentColor; }
 
         .total-summary { 
-            display: flex; justify-content: space-around; margin-top: 30px; padding-top: 30px; 
+            display: flex; justify-content: space-around; margin-top: 20px; padding-top: 20px; 
             border-top: 1px solid var(--glass-border); gap: 10px;
         }
         .summary-item { text-align: center; flex: 1; }
-        .summary-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; display: block; letter-spacing: 1px; }
-        .money { font-size: 1.4em; font-weight: 700; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.2); display: block; font-family: 'Montserrat', sans-serif;}
+        .summary-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px; display: block; letter-spacing: 1px; }
+        .money { font-size: 1.1em; font-weight: 700; color: #fff; font-family: 'Montserrat', sans-serif;}
 
-        /* Inputs & Tables */
+        /* --- 输入与表格 --- */
         input, select { 
             background: var(--input-bg); border: 1px solid var(--glass-border); color: #fff; 
             padding: 14px; border-radius: 12px; width: 100%; box-sizing: border-box;
-            font-size: 0.9rem; transition: all 0.3s; font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem; transition: all 0.3s; font-family: 'Montserrat', "Microsoft YaHei", sans-serif;
             font-weight: 500;
         }
-        input:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); outline: none; box-shadow: 0 0 15px rgba(0,0,0,0.3); }
+        input:focus { border-color: var(--accent); background: rgba(0,0,0,0.8); outline: none; box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
 
         .input-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 25px; }
         .btn-add { 
-            background: var(--accent); color: #0f0f12; border: none; padding: 16px; grid-column: 1 / -1; 
+            background: linear-gradient(135deg, var(--accent), #00aaff); 
+            color: #000; border: none; padding: 16px; grid-column: 1 / -1; 
             border-radius: 12px; font-weight: 800; font-size: 0.9rem; cursor: pointer;
-            box-shadow: 0 5px 20px -5px var(--accent); display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 5px 20px -5px rgba(0, 242, 255, 0.5); 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
             letter-spacing: 1px; transition: all 0.2s;
         }
-        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px var(--accent); }
         .btn-add:active { transform: scale(0.98); }
 
         /* PC Table */
@@ -129,109 +163,71 @@
         }
         .table-view td { padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); vertical-align: middle; }
         .table-view input { border: none; background: transparent; padding: 0; font-family: 'Consolas', monospace; }
-        .type-swatch { 
-            width: 8px; height: 8px; border-radius: 50%; display: inline-block; 
-            margin-right: 10px; vertical-align: middle; box-shadow: 0 0 8px currentColor;
-        }
+        .type-swatch { width: 6px; height: 12px; border-radius: 2px; display: inline-block; margin-right: 10px; vertical-align: middle; box-shadow: 0 0 10px currentColor; }
 
-        /* --- Mobile Cards (Swipe to Delete) --- */
+        /* Mobile Swipe Cards */
         .card-list-view { display: none; flex-direction: column; gap: 20px; }
-        
-        .swipe-wrapper {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-        }
-
-        /* The delete button behind the card */
+        .swipe-wrapper { position: relative; overflow: hidden; border-radius: 16px; }
         .swipe-action-bg {
-            position: absolute; top: 0; bottom: 0; right: 0;
-            width: 80px; 
-            background: rgba(255, 68, 68, 0.2);
-            border-left: 1px solid rgba(255, 68, 68, 0.3);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 1;
+            position: absolute; top: 0; bottom: 0; right: 0; width: 80px; 
+            background: rgba(255, 68, 68, 0.2); border-left: 1px solid rgba(255, 68, 68, 0.3);
+            display: flex; align-items: center; justify-content: center; z-index: 1;
         }
-        .btn-swipe-delete {
-            background: transparent; border: none; color: #ff6666;
-            width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; cursor: pointer;
-        }
+        .btn-swipe-delete { background: transparent; border: none; color: #ff6666; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; }
 
-        /* The Card Content (Foreground) */
         .item-card { 
-            background: rgba(20, 20, 24, 0.7); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px; 
-            position: relative; z-index: 2;
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            background: rgba(20, 20, 25, 0.8); 
+            border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; 
+            position: relative; z-index: 2; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             will-change: transform;
         }
-        /* Color Strip */
-        .item-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background: var(--item-color, #888); box-shadow: 0 0 15px var(--item-color); }
+        /* 左侧光条 */
+        .item-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; background: var(--item-color, #888); box-shadow: 0 0 10px var(--item-color); }
         
-        .item-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 700; font-size: 1.1em; padding-left: 8px; align-items: center; }
-        .type-badge { font-weight: 600; font-size: 0.6em; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px; margin-left: 8px; color: #ccc; letter-spacing: 0.5px;}
-        .item-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-left: 8px; }
+        .item-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 700; font-size: 1.1em; padding-left: 10px; align-items: center; }
+        .type-badge { font-weight: 600; font-size: 0.6em; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; margin-left: 8px; color: #ccc; letter-spacing: 0.5px;}
+        .item-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-left: 10px; }
         .field-label { font-size: 0.75em; color: var(--text-muted); margin-bottom: 6px; display: block; }
         .field-input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 0; padding: 4px 0; font-family: 'Consolas', monospace; font-size: 1.1em; color: #fff; }
 
-        /* FAB */
-        .fab-container {
-            position: fixed; bottom: calc(30px + env(safe-area-inset-bottom)); right: 25px; 
-            display: flex; flex-direction: column; gap: 15px; z-index: 9999;
-        }
+        /* Floating Buttons */
+        .fab-container { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom)); right: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 9999; }
         .fab {
             width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.3s;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #fff; backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); color: #fff; backdrop-filter: blur(10px); background: rgba(30,30,30,0.8);
         }
         .fab:active { transform: scale(0.9); }
-        .fab-theme { background: rgba(40,40,40,0.8); }
-        .fab-save { background: var(--accent); color: #0f0f12; border: none; box-shadow: 0 0 20px var(--accent); }
+        .fab-save { background: var(--accent); color: #000; border: none; box-shadow: 0 0 25px var(--accent); }
 
-        /* Theme Panel */
-        .theme-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 10000; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s; backdrop-filter: blur(5px);
-        }
+        /* Modal & Theme Panel (Same as v1.6 but styled) */
+        .theme-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(5px); }
         .theme-overlay.active { opacity: 1; pointer-events: auto; }
-        .theme-panel {
-            position: fixed; top: 0; right: -400px; width: 340px; height: 100%;
-            background: rgba(15, 15, 18, 0.95); border-left: 1px solid rgba(255,255,255,0.1);
-            z-index: 10001; transition: transform 0.4s var(--ease-out-expo);
-            padding: 30px; box-sizing: border-box; display: flex; flex-direction: column;
-            overflow-y: auto; box-shadow: -20px 0 50px rgba(0,0,0,0.5);
-        }
+        .theme-panel { position: fixed; top: 0; right: -400px; width: 340px; height: 100%; background: #0f0f12; border-left: 1px solid #333; z-index: 10001; transition: transform 0.4s var(--ease-expo); padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; }
         .theme-overlay.active .theme-panel { transform: translateX(-400px); }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .panel-title { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
-        .color-section { margin-bottom: 40px; }
-        .section-label { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; font-weight: 700; opacity: 0.8; }
-        .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .swatch-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        .color-planet-wrapper { position: relative; width: 32px; height: 32px; border-radius: 50%; overflow: hidden; cursor: pointer; transition: transform 0.2s; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-        .color-planet-wrapper:hover { transform: scale(1.1); }
-        .color-planet-wrapper input[type="color"] { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; opacity: 0; cursor: pointer; }
-        .planet-face { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 15px currentColor; border: 2px solid rgba(255,255,255,0.2); }
-        .btn-reset { margin-top: auto; width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #888; text-transform: uppercase; font-weight: 700; border-radius: 12px; cursor: pointer; }
-        .btn-close { background:none; border:none; color:#fff; cursor:pointer;}
-
-        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .modal-content { background: #151518; padding: 40px; border-radius: 24px; width: 85%; max-width: 350px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+
+        /* Color Picker Styles */
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .panel-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 700; color: #fff; }
+        .color-section { margin-bottom: 30px; }
+        .section-label { font-size: 0.7rem; color: var(--accent); margin-bottom: 15px; font-weight: 700; letter-spacing: 1px; }
+        .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .swatch-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 12px; }
+        .color-planet-wrapper { position: relative; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; cursor: pointer; }
+        .planet-face { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 10px currentColor; border: 2px solid rgba(255,255,255,0.2); }
+        .color-planet-wrapper input { position: absolute; top:-10px; left:-10px; width:50px; height:50px; opacity: 0; cursor: pointer; }
+        .btn-reset { margin-top: auto; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: #888; border-radius: 12px; cursor: pointer; }
 
         @media screen and (max-width: 768px) {
             .table-view { display: none; } .card-list-view { display: flex; }
             .input-area { grid-template-columns: 1fr 1fr; }
             .input-area input:nth-child(1), .input-area input:nth-child(2) { grid-column: span 2; }
             .header-box { flex-direction: column; gap: 15px; }
-            .config-bar { width: 100%; justify-content: center; }
+            .config-bar { width: 100%; }
             .theme-overlay.active .theme-panel { transform: translateY(0); }
-            .theme-panel { top: auto; bottom: 0; right: 0; width: 100%; height: 70vh; transform: translateY(100%); border-left: none; border-top: 1px solid rgba(255,255,255,0.2); border-radius: 30px 30px 0 0; }
+            .theme-panel { top: auto; bottom: 0; right: 0; width: 100%; height: 75vh; transform: translateY(100%); border-left: none; border-top: 1px solid rgba(255,255,255,0.2); border-radius: 30px 30px 0 0; }
         }
     </style>
 </head>
@@ -249,11 +245,11 @@
     <div id="configModal" class="modal">
         <div class="modal-content">
             <h3 style="color:var(--accent); margin:0;">连接 GitHub</h3>
-            <input type="password" id="cfgToken" placeholder="GitHub Token (ghp_...)">
-            <input type="text" id="cfgUser" placeholder="GitHub 用户名">
-            <input type="text" id="cfgRepo" placeholder="仓库名 (Repository)">
-            <input type="text" id="cfgPath" placeholder="文件名 (默认: budget_data.json)" value="budget_data.json">
-            <button onclick="saveConfig()" class="btn-add">建立连接</button>
+            <input type="password" id="cfgToken" placeholder="GitHub Token">
+            <input type="text" id="cfgUser" placeholder="用户名">
+            <input type="text" id="cfgRepo" placeholder="仓库名">
+            <input type="text" id="cfgPath" placeholder="文件名 (budget_data.json)" value="budget_data.json">
+            <button onclick="saveConfig()" class="btn-add">连接</button>
             <button onclick="closeModal('configModal')" style="background:transparent; color:#666; border:none; cursor:pointer;">取消</button>
         </div>
     </div>
@@ -261,63 +257,57 @@
     <div id="themeOverlay" class="theme-overlay">
         <div class="theme-panel">
             <div class="panel-header">
-                <div class="panel-title">主题工坊</div>
-                <button class="btn-close" onclick="toggleThemePanel(false)"><svg class="icon-lg"><use href="#icon-close"></use></svg></button>
+                <div class="panel-title">Studio</div>
+                <button onclick="toggleThemePanel(false)" style="background:none; border:none; color:#fff;"><svg class="icon-lg"><use href="#icon-close"></use></svg></button>
             </div>
             <div class="color-section">
-                <div class="section-label">全局外观</div>
+                <div class="section-label">System</div>
                 <div class="swatch-grid">
-                    <div class="swatch-row">
-                        <span class="swatch-label">背景深空</span>
-                        <div class="color-planet-wrapper">
-                            <div class="planet-face" id="face-bg"></div>
-                            <input type="color" id="pickerBg" value="#0f0f12" onchange="updateTheme('bg', this.value)">
-                        </div>
-                    </div>
-                    <div class="swatch-row">
-                        <span class="swatch-label">玻璃色调</span>
-                        <div class="color-planet-wrapper">
-                            <div class="planet-face" id="face-card"></div>
-                            <input type="color" id="pickerCard" value="#1e1e1e" onchange="updateTheme('card', this.value)">
-                        </div>
-                    </div>
-                    <div class="swatch-row">
-                        <span class="swatch-label">霓虹核心</span>
-                        <div class="color-planet-wrapper">
-                            <div class="planet-face" id="face-accent"></div>
-                            <input type="color" id="pickerAccent" value="#00d4ff" onchange="updateTheme('accent', this.value)">
-                        </div>
-                    </div>
+                    <div class="swatch-row"><span class="swatch-label">Background</span><div class="color-planet-wrapper"><div class="planet-face" id="face-bg"></div><input type="color" id="pickerBg" onchange="updateTheme('bg', this.value)"></div></div>
+                    <div class="swatch-row"><span class="swatch-label">Glass</span><div class="color-planet-wrapper"><div class="planet-face" id="face-card"></div><input type="color" id="pickerCard" onchange="updateTheme('card', this.value)"></div></div>
+                    <div class="swatch-row"><span class="swatch-label">Accent</span><div class="color-planet-wrapper"><div class="planet-face" id="face-accent"></div><input type="color" id="pickerAccent" onchange="updateTheme('accent', this.value)"></div></div>
                 </div>
             </div>
             <div class="color-section">
-                <div class="section-label">分类色彩 DNA</div>
+                <div class="section-label">Categories</div>
                 <div id="typeColorList" class="swatch-grid" style="display:grid; gap:10px;"></div>
             </div>
-            <button onclick="resetTheme()" class="btn-reset">恢复默认设置</button>
+            <button onclick="resetTheme()" class="btn-reset">Reset Defaults</button>
         </div>
     </div>
 
     <div class="container">
         <div class="header-box">
-            <h1>装修预算 <span class="version-tag" id="verTag"></span></h1>
+            <!-- 赛博朋克 LOGO -->
+            <div class="cyber-logo">
+                BUDGET.OS <span class="version-tag">v1.7</span>
+            </div>
+            
             <div class="config-bar">
-                <div style="margin-right: auto; display:flex; align-items:center;">
+                <div style="display:flex; align-items:center;">
                     <span id="statusDot" class="status-dot"></span>
-                    <span id="statusText" style="font-size:0.75rem; color:#888;">系统就绪</span>
+                    <span id="statusText" style="font-size:0.75rem; color:#888;">READY</span>
                 </div>
-                <button class="btn-config" onclick="openModal('configModal')"><svg class="icon"><use href="#icon-settings"></use></svg> 设置</button>
-                <button class="btn-config" onclick="syncData(true)"><svg class="icon"><use href="#icon-refresh"></use></svg> 同步</button>
+                <button class="btn-config" onclick="openModal('configModal')"><svg class="icon"><use href="#icon-settings"></use></svg></button>
+                <button class="btn-config" onclick="syncData(true)"><svg class="icon"><use href="#icon-refresh"></use></svg></button>
             </div>
         </div>
 
         <div class="glass-card visual-module">
-            <div class="chart-box"><canvas id="budgetChart"></canvas></div>
+            <div class="chart-box">
+                <!-- 中心文字 -->
+                <div class="chart-center-text">
+                    <span class="chart-center-label">Total</span>
+                    <span id="centerTotal" class="chart-center-value">0</span>
+                </div>
+                <canvas id="budgetChart"></canvas>
+            </div>
+            
             <div class="stats-bars" id="progressBarContainer"></div>
+            
             <div class="total-summary">
-                <div class="summary-item"><span class="summary-label">总预算</span><span id="txtTotal" class="money">0</span></div>
-                <div class="summary-item"><span class="summary-label">已支付</span><span id="txtPaid" class="money" style="color:#00ff88; text-shadow:0 0 15px rgba(0,255,136,0.4)">0</span></div>
-                <div class="summary-item"><span class="summary-label">剩余应付</span><span id="txtRemain" class="money" style="color:#888">0</span></div>
+                <div class="summary-item"><span class="summary-label">已支付</span><span id="txtPaid" class="money" style="color:#00ff88;">0</span></div>
+                <div class="summary-item"><span class="summary-label">剩余</span><span id="txtRemain" class="money" style="color:#888;">0</span></div>
             </div>
         </div>
 
@@ -356,25 +346,23 @@
     </div>
 
     <div class="fab-container">
-        <button class="fab fab-theme" onclick="toggleThemePanel(true)" title="主题调色"><svg class="icon-lg"><use href="#icon-palette"></use></svg></button>
-        <button class="fab fab-save" onclick="syncData()" title="保存到云端"><svg class="icon-lg" style="fill:#000;"><use href="#icon-save"></use></svg></button>
+        <button class="fab fab-theme" onclick="toggleThemePanel(true)"><svg class="icon-lg"><use href="#icon-palette"></use></svg></button>
+        <button class="fab fab-save" onclick="syncData()"><svg class="icon-lg" style="fill:#000;"><use href="#icon-save"></use></svg></button>
     </div>
 
     <script>
-        const VERSION = "v1.6";
-        document.getElementById('verTag').innerText = VERSION;
-
+        // --- 逻辑部分保持 v1.6 核心，增加图表优化 ---
         let expenses = [];
         let githubConfig = JSON.parse(localStorage.getItem('gh_config')) || null;
         let fileSha = null;
         let myChart = null;
-        const DEFAULT_PALETTE = ['#00d4ff', '#ff00cc', '#ffe600', '#00ff88', '#ff6600', '#9933ff', '#3366ff', '#ff3366'];
+        const DEFAULT_PALETTE = ['#00f2ff', '#ff0055', '#ffe600', '#b900ff', '#ff8800', '#00ff99'];
         let typeColorMap = JSON.parse(localStorage.getItem('type_colors')) || {};
 
         window.onload = function() {
             initTheme(); 
             if (!githubConfig) {
-                setStatus('offline', '本地模式');
+                setStatus('offline', 'OFFLINE');
                 setTimeout(() => openModal('configModal'), 1000);
                 loadLocal();
             } else {
@@ -382,98 +370,54 @@
             }
         };
 
-        // --- Swipe Logic (Mobile) ---
-        let touchStartX = 0;
-        let activeSwipeEl = null;
+        // Swipe Logic
+        let touchStartX = 0; let activeSwipeEl = null;
+        function handleTouchStart(e) { touchStartX = e.touches[0].clientX; if(activeSwipeEl && activeSwipeEl !== e.currentTarget) { activeSwipeEl.style.transform = 'translateX(0)'; activeSwipeEl = null; } }
+        function handleTouchMove(e) { const diff = e.touches[0].clientX - touchStartX; if(diff < 0 && diff > -100) e.currentTarget.style.transform = `translateX(${diff}px)`; }
+        function handleTouchEnd(e) { const diff = e.changedTouches[0].clientX - touchStartX; if(diff < -50) { e.currentTarget.style.transform = 'translateX(-80px)'; activeSwipeEl = e.currentTarget; } else { e.currentTarget.style.transform = 'translateX(0)'; activeSwipeEl = null; } }
 
-        function handleTouchStart(e) {
-            touchStartX = e.touches[0].clientX;
-            const card = e.currentTarget;
-            if(activeSwipeEl && activeSwipeEl !== card) {
-                activeSwipeEl.style.transform = 'translateX(0)';
-                activeSwipeEl = null;
-            }
-        }
-
-        function handleTouchMove(e) {
-            const card = e.currentTarget;
-            const diff = e.touches[0].clientX - touchStartX;
-            // Only allow dragging left, max -80px
-            if(diff < 0 && diff > -100) {
-                card.style.transform = `translateX(${diff}px)`;
-            }
-        }
-
-        function handleTouchEnd(e) {
-            const card = e.currentTarget;
-            const diff = e.changedTouches[0].clientX - touchStartX;
-            if (diff < -50) { // Threshold to snap open
-                card.style.transform = 'translateX(-80px)';
-                activeSwipeEl = card;
-            } else {
-                card.style.transform = 'translateX(0)';
-                activeSwipeEl = null;
-            }
-        }
-
-        // --- Core Logic ---
-        function getTypeColor(type) {
-            if (typeColorMap[type]) return typeColorMap[type];
-            const nextColor = DEFAULT_PALETTE[Object.keys(typeColorMap).length % DEFAULT_PALETTE.length];
-            typeColorMap[type] = nextColor;
-            localStorage.setItem('type_colors', JSON.stringify(typeColorMap));
-            return nextColor;
-        }
-        function setTypeColor(type, color) {
-            typeColorMap[type] = color; localStorage.setItem('type_colors', JSON.stringify(typeColorMap));
-            renderUI(); updatePlanetFace(`face-${type}`, color);
-        }
-        function toggleThemePanel(show) {
-            const overlay = document.getElementById('themeOverlay');
-            if(show) { overlay.classList.add('active'); renderThemeModalDynamic(); } 
-            else { overlay.classList.remove('active'); }
-        }
+        function getTypeColor(type) { if (typeColorMap[type]) return typeColorMap[type]; const c = DEFAULT_PALETTE[Object.keys(typeColorMap).length % DEFAULT_PALETTE.length]; typeColorMap[type]=c; localStorage.setItem('type_colors',JSON.stringify(typeColorMap)); return c; }
+        function setTypeColor(type, color) { typeColorMap[type]=color; localStorage.setItem('type_colors',JSON.stringify(typeColorMap)); renderUI(); updatePlanetFace(`face-${type}`, color); }
+        function toggleThemePanel(show) { document.getElementById('themeOverlay').classList.toggle('active', show); if(show) renderThemeModalDynamic(); }
+        
         function renderThemeModalDynamic() {
             const container = document.getElementById('typeColorList'); container.innerHTML = '';
-            const currentTypes = [...new Set(expenses.map(e => e.type))].sort();
-            if (currentTypes.length === 0) { container.innerHTML = '<span style="color:#666; font-size:0.8rem;">添加数据后可自定义分类颜色</span>'; return; }
-            currentTypes.forEach(type => {
+            [...new Set(expenses.map(e => e.type))].sort().forEach(type => {
                 const color = getTypeColor(type);
                 const row = document.createElement('div'); row.className = 'swatch-row';
-                const faceId = `face-${type}`; 
-                row.innerHTML = `<span class="swatch-label">${type}</span>
-                    <div class="color-planet-wrapper"><div class="planet-face" id="${faceId}" style="background:${color}; color:${color}"></div><input type="color" value="${color}" onchange="setTypeColor('${type}', this.value)"></div>`;
+                row.innerHTML = `<span class="swatch-label">${type}</span><div class="color-planet-wrapper"><div class="planet-face" id="face-${type}" style="background:${color}; color:${color}"></div><input type="color" value="${color}" onchange="setTypeColor('${type}', this.value)"></div>`;
                 container.appendChild(row);
             });
         }
         function updatePlanetFace(id, color) { const el = document.getElementById(id); if(el) { el.style.background = color; el.style.color = color; } }
+        
+        // Theme
         function initTheme() {
             const theme = JSON.parse(localStorage.getItem('user_theme')) || {};
             if(theme.bg) applyThemeVar('--bg-base', theme.bg);
             if(theme.accent) applyThemeVar('--accent', theme.accent);
             if(theme.card) updateCardTint(theme.card);
-            updatePlanetFace('face-bg', theme.bg || '#0f0f12');
-            updatePlanetFace('face-card', theme.card || '#1e1e1e');
-            updatePlanetFace('face-accent', theme.accent || '#00d4ff');
+            updatePlanetFace('face-bg', theme.bg || '#0a0a0c');
+            updatePlanetFace('face-card', theme.card || '#141419');
+            updatePlanetFace('face-accent', theme.accent || '#00f2ff');
             if(theme.bg) document.getElementById('pickerBg').value = theme.bg;
             if(theme.accent) document.getElementById('pickerAccent').value = theme.accent;
-            if(theme.card) document.getElementById('pickerCard').value = theme.card;
         }
         function updateTheme(type, val) {
             const theme = JSON.parse(localStorage.getItem('user_theme')) || {};
-            if (type === 'bg') { applyThemeVar('--bg-base', val); theme.bg = val; updatePlanetFace('face-bg', val); }
-            if (type === 'accent') { applyThemeVar('--accent', val); theme.accent = val; updatePlanetFace('face-accent', val); }
-            if (type === 'card') { updateCardTint(val); theme.card = val; updatePlanetFace('face-card', val); }
+            if(type === 'bg') { applyThemeVar('--bg-base', val); theme.bg = val; updatePlanetFace('face-bg', val); }
+            if(type === 'accent') { applyThemeVar('--accent', val); theme.accent = val; updatePlanetFace('face-accent', val); }
+            if(type === 'card') { updateCardTint(val); theme.card = val; updatePlanetFace('face-card', val); }
             localStorage.setItem('user_theme', JSON.stringify(theme));
         }
-        function updateCardTint(hex) { const rgb = hexToRgb(hex); if(rgb) { document.documentElement.style.setProperty('--card-base-r', rgb.r); document.documentElement.style.setProperty('--card-base-g', rgb.g); document.documentElement.style.setProperty('--card-base-b', rgb.b); } }
-        function applyThemeVar(name, val) { document.documentElement.style.setProperty(name, val); }
-        function hexToRgb(hex) { const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return r ? { r: parseInt(r[1], 16), g: parseInt(r[2], 16), b: parseInt(r[3], 16) } : null; }
+        function updateCardTint(hex) { const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); if(r) { document.documentElement.style.setProperty('--card-base-r', parseInt(r[1],16)); document.documentElement.style.setProperty('--card-base-g', parseInt(r[2],16)); document.documentElement.style.setProperty('--card-base-b', parseInt(r[3],16)); } }
+        function applyThemeVar(n, v) { document.documentElement.style.setProperty(n, v); }
         function resetTheme() { localStorage.removeItem('user_theme'); localStorage.removeItem('type_colors'); location.reload(); }
 
+        // Data
         async function syncData(forcePull = false) {
             if (!githubConfig) { renderUI(); return; }
-            setStatus('syncing', '同步中...');
+            setStatus('syncing', 'SYNC');
             const { token, user, repo, path } = githubConfig;
             const url = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
             try {
@@ -485,13 +429,13 @@
                     }
                 } else {
                     const content = btoa(unescape(encodeURIComponent(JSON.stringify(expenses, null, 2))));
-                    const body = { message: `Update ${VERSION}`, content: content };
+                    const body = { message: `Update v1.7`, content: content };
                     if (fileSha) body.sha = fileSha;
                     const res = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                     if (res.ok) fileSha = (await res.json()).content.sha;
                 }
-                setStatus('online', '已同步'); localStorage.setItem('local_backup', JSON.stringify(expenses)); renderUI();
-            } catch (e) { console.error(e); setStatus('offline', '离线'); loadLocal(); }
+                setStatus('online', 'OK'); localStorage.setItem('local_backup', JSON.stringify(expenses)); renderUI();
+            } catch (e) { console.error(e); setStatus('offline', 'ERR'); loadLocal(); }
         }
         function loadLocal() { expenses = JSON.parse(localStorage.getItem('local_backup')) || []; renderUI(); }
         function renderUI() { renderPC(); renderMobile(); renderCharts(); }
@@ -502,22 +446,18 @@
                 const color = getTypeColor(item.type);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="display:flex; align-items:center;">
-                        <span class="type-swatch" style="background:${color}; color:${color}"></span>
-                        <input value="${item.type}" onchange="upd(${index}, 'type', this.value)" style="flex:1;">
-                    </td>
+                    <td style="display:flex; align-items:center;"><span class="type-swatch" style="background:${color}; box-shadow:0 0 8px ${color}"></span><input value="${item.type}" onchange="upd(${index}, 'type', this.value)" style="flex:1;"></td>
                     <td><input value="${item.name}" onchange="upd(${index}, 'name', this.value)"></td>
                     <td><input type="number" value="${item.total}" onchange="upd(${index}, 'total', this.value)"></td>
                     <td><input type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)"></td>
                     <td><input type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)"></td>
                     <td><input type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)"></td>
-                    <td style="text-align:right"><button onclick="del(${index})" style="background:none; border:none; color:#666; cursor:pointer; transition:0.2s" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='#666'"><svg class="icon"><use href="#icon-trash"></use></svg></button></td>
+                    <td style="text-align:right"><button onclick="del(${index})" style="background:none; border:none; color:#666; cursor:pointer;"><svg class="icon"><use href="#icon-trash"></use></svg></button></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- Swipe Render ---
         function renderMobile() {
             const container = document.getElementById('mobileList'); container.innerHTML = '';
             expenses.forEach((item, index) => {
@@ -525,39 +465,18 @@
                 const paid = (parseFloat(item.deposit)||0) + (parseFloat(item.second)||0) + (parseFloat(item.final)||0);
                 const progress = item.total > 0 ? Math.round(paid / item.total * 100) : 0;
                 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'swipe-wrapper';
-                
-                // 1. Delete Action Background (Right)
-                const actionBg = document.createElement('div');
-                actionBg.className = 'swipe-action-bg';
-                actionBg.innerHTML = `<button class="btn-swipe-delete" onclick="del(${index})"><svg class="icon-lg"><use href="#icon-trash"></use></svg></button>`;
-                
-                // 2. Card Content (Foreground)
-                const card = document.createElement('div');
-                card.className = 'item-card';
-                card.style.setProperty('--item-color', color);
-                
-                // Bind Touch Events
-                card.addEventListener('touchstart', handleTouchStart, {passive: true});
-                card.addEventListener('touchmove', handleTouchMove, {passive: true});
-                card.addEventListener('touchend', handleTouchEnd, {passive: true});
-
-                card.innerHTML = `
-                    <div class="item-header">
-                        <div>${item.name} <span class="type-badge" style="color:${color}; border:1px solid ${color}">${item.type}</span></div>
-                        <span style="color:${progress>=100?'#00ff88':'#888'}; font-size:0.9em;">${progress}%</span>
-                    </div>
-                    <div class="item-body">
-                        <div><span class="field-label">总金额</span><input class="field-input" type="number" value="${item.total}" onchange="upd(${index}, 'total', this.value)" style="color:var(--accent)"></div>
-                        <div><span class="field-label">定金</span><input class="field-input" type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)"></div>
-                        <div><span class="field-label">次付</span><input class="field-input" type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)"></div>
-                        <div><span class="field-label">尾款</span><input class="field-input" type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)"></div>
-                    </div>
-                `;
-                
-                wrapper.appendChild(actionBg);
-                wrapper.appendChild(card);
+                const wrapper = document.createElement('div'); wrapper.className = 'swipe-wrapper';
+                wrapper.innerHTML = `
+                    <div class="swipe-action-bg"><button class="btn-swipe-delete" onclick="del(${index})"><svg class="icon-lg"><use href="#icon-trash"></use></svg></button></div>
+                    <div class="item-card" style="--item-color:${color}" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)">
+                        <div class="item-header"><div>${item.name} <span class="type-badge" style="color:${color}; border:1px solid ${color}">${item.type}</span></div><span style="color:${progress>=100?'#00ff88':'#888'}; font-size:0.9em;">${progress}%</span></div>
+                        <div class="item-body">
+                            <div><span class="field-label">总金额</span><input class="field-input" type="number" value="${item.total}" onchange="upd(${index}, 'total', this.value)" style="color:var(--accent)"></div>
+                            <div><span class="field-label">定金</span><input class="field-input" type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)"></div>
+                            <div><span class="field-label">次付</span><input class="field-input" type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)"></div>
+                            <div><span class="field-label">尾款</span><input class="field-input" type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)"></div>
+                        </div>
+                    </div>`;
                 container.appendChild(wrapper);
             });
         }
@@ -568,10 +487,11 @@
                 const t = parseFloat(item.total) || 0;
                 const p = (parseFloat(item.deposit)||0) + (parseFloat(item.second)||0) + (parseFloat(item.final)||0);
                 total += t; paid += p;
-                if(!stats[item.type]) stats[item.type] = 0;
-                stats[item.type] += t;
+                if(!stats[item.type]) stats[item.type] = 0; stats[item.type] += t;
             });
-            document.getElementById('txtTotal').innerText = total.toLocaleString();
+            
+            // Update Center Text
+            document.getElementById('centerTotal').innerText = total > 10000 ? (total/10000).toFixed(1) + 'w' : total.toLocaleString();
             document.getElementById('txtPaid').innerText = paid.toLocaleString();
             document.getElementById('txtRemain').innerText = (total - paid).toLocaleString();
 
@@ -583,8 +503,13 @@
             if(myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: bgColors, borderWidth: 0, hoverOffset: 20, shadowBlur: 20, shadowColor: 'rgba(0,0,0,0.6)' }] },
-                options: { maintainAspectRatio: false, layout: { padding: 30 }, plugins: { legend: { position: 'bottom', labels: { color: '#bbb', usePointStyle: true, pointStyle: 'circle', padding: 25, font: {family: "'Montserrat', sans-serif", size: 11} } } } }
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: bgColors, borderWidth: 0, hoverOffset: 10, borderRadius: 20, spacing: 5 }] },
+                options: { 
+                    maintainAspectRatio: false, 
+                    cutout: '85%', // Thin Ring
+                    layout: { padding: 20 }, 
+                    plugins: { legend: { display: false } } // Hide default legend for cleaner look
+                }
             });
 
             const barCont = document.getElementById('progressBarContainer'); barCont.innerHTML = '';
@@ -592,37 +517,23 @@
             addBar(barCont, '总支付进度', totalPct, '#00ff88');
             labels.forEach(type => {
                 const pct = total > 0 ? (stats[type] / total * 100) : 0;
-                addBar(barCont, type + " 占比", pct, getTypeColor(type));
+                addBar(barCont, type, pct, getTypeColor(type));
             });
         }
-
         function addBar(container, label, pct, color) {
             const div = document.createElement('div'); div.className = 'progress-group';
-            div.innerHTML = `<div class="progress-labels"><span>${label}</span><span>${pct.toFixed(1)}%</span></div>
-                <div class="progress-track"><div class="progress-fill" style="width:${pct}%; background:${color}; box-shadow: 0 0 15px ${color}"></div></div>`;
+            div.innerHTML = `<div class="progress-labels"><span>${label}</span><span>${pct.toFixed(1)}%</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct}%; background:${color}; box-shadow: 0 0 10px ${color}"></div></div>`;
             container.appendChild(div);
         }
 
         function upd(i, k, v) { expenses[i][k] = v; renderCharts(); syncData(); }
-        function del(i) { if(confirm('确定删除此项吗?')) { expenses.splice(i, 1); syncData(); } }
-        function addNewItem() {
-            expenses.push({ type: document.getElementById('inType').value||'其他', name: document.getElementById('inName').value||'新项目', total: document.getElementById('inTotal').value||0, deposit:0, second:0, final:0 });
-            ['inName','inTotal','inDeposit','inSecond','inFinal'].forEach(id=>document.getElementById(id).value='');
-            syncData();
-        }
+        function del(i) { if(confirm('删除此项?')) { expenses.splice(i, 1); syncData(); } }
+        function addNewItem() { expenses.push({ type: document.getElementById('inType').value||'其他', name: document.getElementById('inName').value||'项目', total: document.getElementById('inTotal').value||0, deposit:0, second:0, final:0 }); ['inName','inTotal','inDeposit','inSecond','inFinal'].forEach(id=>document.getElementById(id).value=''); syncData(); }
         function sortData(k) { expenses.sort((a,b)=>(a[k]>b[k]?1:-1)); renderUI(); }
         function openModal(id) { document.getElementById(id).style.display='flex'; }
         function closeModal(id) { document.getElementById(id).style.display='none'; }
-        
-        function saveConfig() {
-            githubConfig = { token: document.getElementById('cfgToken').value, user: document.getElementById('cfgUser').value, repo: document.getElementById('cfgRepo').value, path: document.getElementById('cfgPath').value };
-            localStorage.setItem('gh_config', JSON.stringify(githubConfig));
-            closeModal('configModal'); syncData(true);
-        }
-        function setStatus(cls, txt) {
-            document.getElementById('statusDot').className = `status-dot ${cls}`;
-            document.getElementById('statusText').innerText = txt;
-        }
+        function saveConfig() { githubConfig = { token: document.getElementById('cfgToken').value, user: document.getElementById('cfgUser').value, repo: document.getElementById('cfgRepo').value, path: document.getElementById('cfgPath').value }; localStorage.setItem('gh_config', JSON.stringify(githubConfig)); closeModal('configModal'); syncData(true); }
+        function setStatus(cls, txt) { document.getElementById('statusDot').className = `status-dot ${cls}`; document.getElementById('statusText').innerText = txt; }
     </script>
 </body>
 </html>
