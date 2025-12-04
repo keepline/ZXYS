@@ -22,5 +22,13 @@
     "deposit": 0,
     "second": 0,
     "final": 0
+  },
+  {
+    "type": "其他",
+    "name": "项目",
+    "total": 0,
+    "deposit": 0,
+    "second": 0,
+    "final": 0
   }
 ]
