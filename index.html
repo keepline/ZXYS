@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #0f0f12; /* 更深邃的背景 */
+            --bg-color: #0f0f12;
             --glass-bg: rgba(30, 30, 30, 0.6);
             --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #e0e0e0;
@@ -20,176 +20,209 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, var(--bg-color) 60%); /* 增加顶部微光 */
+            background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, var(--bg-color) 60%);
             color: var(--text-main);
             margin: 0;
             padding: 15px;
-            padding-bottom: 100px;
+            padding-bottom: 120px; /* 底部留白增加 */
         }
 
-        /* --- 玻璃拟态卡片基类 --- */
+        /* --- SVG 图标定义 --- */
+        .icon {
+            width: 16px; height: 16px; fill: currentColor; 
+            vertical-align: text-bottom; margin-right: 4px;
+        }
+        .icon-lg { width: 24px; height: 24px; margin: 0; }
+
+        /* --- 玻璃拟态卡片 --- */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            padding: 20px;
+            padding: 24px 20px; /* 增加内边距 */
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        /* --- 标题与版本 --- */
-        .header-box { text-align: center; margin-bottom: 20px; }
+        /* --- 头部 --- */
+        .header-box { text-align: center; margin-bottom: 25px; }
         h1 { 
             margin: 5px 0; font-weight: 300; letter-spacing: 1px; color: #fff; 
             text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         .version-tag {
             font-size: 0.7rem; background: rgba(255,255,255,0.1); 
             padding: 2px 8px; border-radius: 10px; color: var(--text-muted);
-            border: 1px solid var(--glass-border); vertical-align: middle;
+            border: 1px solid var(--glass-border);
+            font-family: 'Consolas', monospace;
         }
 
-        /* --- 顶部配置栏 --- */
-        .config-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; align-items: center;}
+        /* --- 配置栏 --- */
+        .config-bar { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 15px; align-items: center;}
         .btn-config { 
             background: rgba(255,255,255,0.05); color: #ccc; border: 1px solid var(--glass-border);
-            padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;
+            padding: 8px 14px; font-size: 0.85rem; border-radius: 8px;
+            display: flex; align-items: center; transition: all 0.2s;
         }
-        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; background: #555; margin-right: 5px; }
+        .btn-config:active { background: rgba(255,255,255,0.1); transform: scale(0.98); }
+        
+        .status-dot { height: 6px; width: 6px; border-radius: 50%; display: inline-block; background: #555; margin-right: 8px; }
         .status-dot.online { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
         .status-dot.syncing { background: #ffd700; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0.5; } }
 
-        /* --- 模块二：视觉统计 (3D Glass) --- */
-        .visual-module { display: flex; flex-wrap: wrap; gap: 20px; }
+        /* --- 视觉统计 --- */
+        .visual-module { display: flex; flex-wrap: wrap; gap: 30px; }
         .chart-box { 
-            flex: 1; min-width: 280px; height: 320px; position: relative; 
+            flex: 1; min-width: 280px; height: 300px; position: relative; 
             display: flex; justify-content: center; align-items: center;
         }
-        /* 给Canvas加阴影提升层次 */
         #budgetChart { filter: drop-shadow(0px 10px 8px rgba(0,0,0,0.5)); }
 
         .stats-bars { flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center; }
-        
-        .progress-group { margin-bottom: 12px; }
+        .progress-group { margin-bottom: 15px; }
         .progress-labels { display: flex; justify-content: space-between; font-size: 0.85em; color: var(--text-muted); margin-bottom: 6px; }
-        .progress-track { background: rgba(0,0,0,0.3); height: 8px; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
-        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; box-shadow: 0 0 10px currentColor; }
+        .progress-track { background: rgba(0,0,0,0.3); height: 6px; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
 
+        /* 重点优化：总计栏间距 */
         .total-summary { 
-            display: flex; justify-content: space-around; margin-top: 20px; padding-top: 20px; 
+            display: flex; justify-content: space-around; 
+            margin-top: 35px; /* 增加上间距 */
+            padding-top: 25px; /* 增加内边距 */
             border-top: 1px solid var(--glass-border); 
+            gap: 10px;
         }
-        .summary-item { text-align: center; }
-        .summary-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;}
-        .money { font-family: 'Consolas', monospace; font-size: 1.3em; font-weight: bold; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .summary-item { 
+            text-align: center; 
+            flex: 1;
+            /* 增加点击区域感，虽然不可点 */
+            padding: 5px 0; 
+        }
+        .summary-label { 
+            font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block; 
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .money { 
+            font-family: 'Consolas', monospace; font-size: 1.25em; font-weight: 600; color: #fff; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5); 
+            display: block;
+        }
 
-        /* --- 模块一：录入与列表 --- */
+        /* --- 录入与表格 --- */
         input, select { 
             background: var(--input-bg); border: 1px solid var(--glass-border); color: #fff; 
-            padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box;
-            transition: all 0.3s;
+            padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box;
+            font-size: 0.95rem; transition: all 0.3s;
         }
-        input:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); outline: none; box-shadow: 0 0 10px rgba(0, 212, 255, 0.1); }
+        input:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); outline: none; }
 
-        .input-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .input-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 25px; }
         .btn-add { 
             background: linear-gradient(135deg, var(--accent), #0099cc); 
-            color: #000; border: none; padding: 12px; grid-column: 1 / -1; 
+            color: #000; border: none; padding: 14px; grid-column: 1 / -1; 
             border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .btn-add:active { transform: scale(0.98); }
 
         /* PC表格 */
         .table-view { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
         .table-view th { text-align: left; padding: 12px; color: var(--text-muted); border-bottom: 1px solid var(--glass-border); cursor: pointer; }
-        .table-view td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .table-view td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); }
         .table-view input { border: none; background: transparent; padding: 5px; font-family: 'Consolas', monospace; }
-        .table-view input:focus { background: rgba(255,255,255,0.05); }
 
-        /* --- 手机端卡片列表 (重点优化) --- */
-        .card-list-view { display: none; flex-direction: column; gap: 20px; }
+        /* 手机卡片列表 */
+        .card-list-view { display: none; flex-direction: column; gap: 25px; } /* 增加卡片间距 */
         
         .item-card { 
             background: rgba(40, 40, 40, 0.4); 
             border: 1px solid var(--glass-border);
             border-radius: 12px; 
-            padding: 15px 15px 0 15px; /* 底部留给按钮 */
+            padding: 18px 18px 0 18px; 
             position: relative; overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         .item-card::before {
-            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px;
             background: var(--item-color, #888);
         }
 
-        .item-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 1.1em; padding-left: 10px; align-items: center;}
-        .type-badge { font-weight: normal; font-size: 0.7em; background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 4px; margin-left: 5px; color: #ccc;}
+        .item-header { display: flex; justify-content: space-between; margin-bottom: 18px; font-weight: bold; font-size: 1.1em; padding-left: 8px; align-items: center;}
+        .type-badge { font-weight: normal; font-size: 0.7em; background: rgba(255,255,255,0.08); padding: 4px 8px; border-radius: 6px; margin-left: 8px; color: #ccc;}
         
-        .item-body { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-left: 10px; padding-bottom: 15px; }
-        .field-group { display: flex; flex-direction: column; gap: 2px; }
-        .field-label { font-size: 0.75em; color: var(--text-muted); }
+        .item-body { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-left: 8px; padding-bottom: 20px; }
+        .field-label { font-size: 0.75em; color: var(--text-muted); margin-bottom: 4px; display: block;}
         .field-input { 
             background: transparent; border: none; border-bottom: 1px solid #444; 
-            border-radius: 0; padding: 4px 0; text-align: left; font-family: 'Consolas', monospace; font-size: 1em;
+            border-radius: 0; padding: 4px 0; text-align: left; font-family: 'Consolas', monospace; font-size: 1.05em;
         }
-        .field-input:focus { border-bottom-color: var(--accent); background: transparent; box-shadow: none; }
 
-        /* 手机端底部删除按钮 */
+        /* 扁平化删除按钮 */
         .btn-card-delete {
-            width: calc(100% + 30px); /* 填满卡片宽度 */
-            margin-left: -15px; /* 抵消卡片padding */
-            background: rgba(255, 68, 68, 0.1);
+            width: calc(100% + 36px); 
+            margin-left: -18px; 
+            background: rgba(255, 68, 68, 0.08);
             color: #ff6666;
             border: none;
-            border-top: 1px solid rgba(255, 68, 68, 0.2);
-            padding: 12px;
+            border-top: 1px solid rgba(255, 68, 68, 0.15);
+            padding: 14px;
             font-size: 0.9rem;
             cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 5px;
         }
-        .btn-card-delete:active { background: rgba(255, 68, 68, 0.3); color: #fff; }
+        .btn-card-delete:active { background: rgba(255, 68, 68, 0.2); }
 
-        /* --- 悬浮按钮与模态框 --- */
+        /* --- 悬浮按钮 (扁平圆) --- */
         .float-save { 
-            position: fixed; bottom: 25px; right: 25px; 
-            background: var(--accent); color: #000; 
-            width: 55px; height: 55px; border-radius: 50%; 
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+            position: fixed; bottom: 30px; right: 25px; 
+            background: var(--accent); color: #0f0f12; 
+            width: 56px; height: 56px; border-radius: 50%; 
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px; z-index: 999; cursor: pointer; border: 2px solid #fff;
+            cursor: pointer; border: none;
+            transition: transform 0.2s;
         }
+        .float-save:active { transform: scale(0.9); }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #1e1e1e; padding: 25px; border-radius: 16px; width: 85%; max-width: 400px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 15px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .modal-content { background: #1e1e1e; padding: 30px; border-radius: 16px; width: 85%; max-width: 400px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 15px; }
 
         @media screen and (max-width: 768px) {
             .table-view { display: none; }
             .card-list-view { display: flex; }
             .input-area { grid-template-columns: 1fr 1fr; }
             .input-area input:nth-child(1), .input-area input:nth-child(2) { grid-column: span 2; }
-            .header-box { text-align: left; display: flex; align-items: center; justify-content: space-between; }
-            h1 { font-size: 1.4rem; margin: 0; }
+            .header-box { flex-direction: column; gap: 15px; }
+            .config-bar { width: 100%; justify-content: center; }
+            h1 { justify-content: center; margin-bottom: 10px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- 预定义 SVG 图标 -->
+    <svg style="display: none;">
+        <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9,14.21,4,12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8,7.99,8c3.73,0,6.84-2.55,7.73-6h-2.08 c-0.82,2.33-3.04,4-5.65,4c-3.31,0-6-2.69-6-6s2.69-6,6-6c1.66,0,3.14,0.69,4.22,1.78L13,11h7V4L17.65,6.35z"/></symbol>
+        <symbol id="icon-save" viewBox="0 0 24 24"><path d="M17,3H5C3.89,3,3,3.9,3,5v14c0,1.1,0.89,2,2,2h14c1.1,0,2-0.9,2-2V7L17,3z M12,19c-1.66,0-3-1.34-3-3s1.34-3,3-3 s3,1.34,3,3S13.66,19,12,19z M15,9H5V5h10V9z"/></symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z"/></symbol>
+        <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M6,19c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2V7H6V19z M19,4h-3.5l-1-1h-5l-1,1H5v2h14V4z"/></symbol>
+    </svg>
+
     <!-- 配置模态框 -->
     <div id="configModal" class="modal">
         <div class="modal-content">
-            <h3 style="color:var(--accent); margin:0;">🔗 连接 GitHub</h3>
-            <p style="font-size:0.8em; color:#aaa; margin:0;">配置一次，永久云端同步。</p>
+            <h3 style="color:var(--accent); margin:0; display:flex; align-items:center;">
+                <svg class="icon" style="width:20px;height:20px;"><use href="#icon-settings"></use></svg> 连接 GitHub
+            </h3>
+            <p style="font-size:0.8em; color:#aaa; margin:0;">配置 Token，实现数据云端同步。</p>
             <input type="password" id="cfgToken" placeholder="GitHub Token (ghp_...)">
-            <input type="text" id="cfgUser" placeholder="用户名 (Username)">
-            <input type="text" id="cfgRepo" placeholder="仓库名 (Repo Name)">
+            <input type="text" id="cfgUser" placeholder="用户名">
+            <input type="text" id="cfgRepo" placeholder="仓库名">
             <input type="text" id="cfgPath" placeholder="文件名" value="budget_data.json">
             <button onclick="saveConfig()" class="btn-add">确认连接</button>
             <button onclick="closeModal()" style="background:transparent; color:#888; border:none; padding:10px;">暂不连接 (本地模式)</button>
@@ -199,19 +232,25 @@
     <div class="container">
         <!-- 头部 -->
         <div class="header-box">
-            <h1>装修预算 <span class="version-tag" id="verTag"></span></h1>
+            <h1>
+                装修预算 <span class="version-tag" id="verTag"></span>
+            </h1>
             
             <div class="config-bar">
                 <div style="margin-right: auto; display:flex; align-items:center;">
                     <span id="statusDot" class="status-dot"></span>
-                    <span id="statusText" style="font-size:0.8rem; color:#888;">检测中...</span>
+                    <span id="statusText" style="font-size:0.8rem; color:#888;">初始化...</span>
                 </div>
-                <button class="btn-config" onclick="openModal()">⚙️ 设置</button>
-                <button class="btn-config" onclick="syncData(true)">🔄 拉取</button>
+                <button class="btn-config" onclick="openModal()">
+                    <svg class="icon"><use href="#icon-settings"></use></svg> 设置
+                </button>
+                <button class="btn-config" onclick="syncData(true)">
+                    <svg class="icon"><use href="#icon-refresh"></use></svg> 同步
+                </button>
             </div>
         </div>
 
-        <!-- 视觉统计模块 (Glass Panel) -->
+        <!-- 视觉统计模块 -->
         <div class="glass-card visual-module">
             <div class="chart-box">
                 <canvas id="budgetChart"></canvas>
@@ -219,6 +258,8 @@
             <div class="stats-bars" id="progressBarContainer">
                 <!-- JS生成进度条 -->
             </div>
+            
+            <!-- 优化了间距的总计栏 -->
             <div class="total-summary">
                 <div class="summary-item">
                     <span class="summary-label">总预算</span>
@@ -226,7 +267,7 @@
                 </div>
                 <div class="summary-item">
                     <span class="summary-label">已支付</span>
-                    <span id="txtPaid" class="money" style="color:#00ff88; text-shadow:0 0 10px rgba(0,255,136,0.3)">0</span>
+                    <span id="txtPaid" class="money" style="color:#00ff88; text-shadow:0 0 10px rgba(0,255,136,0.25)">0</span>
                 </div>
                 <div class="summary-item">
                     <span class="summary-label">剩余应付</span>
@@ -235,11 +276,12 @@
             </div>
         </div>
 
-        <!-- 录入与列表 (Glass Panel) -->
+        <!-- 录入与列表 -->
         <div class="glass-card">
-            <h2 style="margin-top:0; font-weight:300; font-size:1.2rem; color:var(--accent); border-bottom:1px solid var(--glass-border); padding-bottom:10px; margin-bottom:15px;">📋 支出明细</h2>
+            <h2 style="margin-top:0; font-weight:300; font-size:1.2rem; color:var(--accent); border-bottom:1px solid var(--glass-border); padding-bottom:15px; margin-bottom:20px;">
+                支出明细
+            </h2>
             
-            <!-- 录入区 -->
             <div class="input-area">
                 <input type="text" id="inType" placeholder="类型 (如: 硬装)" list="typeList">
                 <datalist id="typeList">
@@ -250,10 +292,11 @@
                 <input type="number" id="inDeposit" placeholder="定金">
                 <input type="number" id="inSecond" placeholder="次付">
                 <input type="number" id="inFinal" placeholder="尾款">
-                <button class="btn-add" onclick="addNewItem()">+ 添加新项</button>
+                <button class="btn-add" onclick="addNewItem()">
+                    <svg class="icon"><use href="#icon-plus"></use></svg> 添加新项
+                </button>
             </div>
 
-            <!-- PC表格 -->
             <table class="table-view" id="pcTable">
                 <thead>
                     <tr>
@@ -269,34 +312,26 @@
                 <tbody id="pcTableBody"></tbody>
             </table>
 
-            <!-- 手机卡片列表 -->
             <div class="card-list-view" id="mobileList"></div>
         </div>
     </div>
 
-    <!-- 悬浮保存 -->
-    <div class="float-save" onclick="syncData()" title="保存到云端">💾</div>
+    <!-- 悬浮保存按钮 -->
+    <button class="float-save" onclick="syncData()" title="保存到云端">
+        <svg class="icon-lg" style="fill:#000;"><use href="#icon-save"></use></svg>
+    </button>
 
     <script>
         // --- 版本控制 ---
-        const VERSION = "v1.1";
+        const VERSION = "v1.2";
         document.getElementById('verTag').innerText = VERSION;
 
-        // --- 数据变量 ---
         let expenses = [];
         let githubConfig = JSON.parse(localStorage.getItem('gh_config')) || null;
         let fileSha = null;
         let myChart = null;
 
-        // --- 颜色配置 (Neon Palette) ---
-        const COLORS = [
-            '#00d4ff', // 青色
-            '#ff00cc', // 洋红
-            '#ffe600', // 黄色
-            '#00ff88', // 绿色
-            '#ff6600', // 橙色
-            '#9933ff'  // 紫色
-        ];
+        const COLORS = ['#00d4ff', '#ff00cc', '#ffe600', '#00ff88', '#ff6600', '#9933ff'];
 
         window.onload = function() {
             if (!githubConfig) {
@@ -308,8 +343,6 @@
             }
         };
 
-        // --- 核心逻辑 ---
-
         async function syncData(forcePull = false) {
             if (!githubConfig) { renderUI(); return; }
             setStatus('syncing', '同步中...');
@@ -319,19 +352,15 @@
 
             try {
                 if (forcePull) {
-                    const res = await fetch(url, {
-                        headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-                    });
+                    const res = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
                     if (res.status === 200) {
                         const data = await res.json();
                         fileSha = data.sha;
-                        const content = decodeURIComponent(escape(window.atob(data.content)));
-                        expenses = JSON.parse(content);
-                    } else { fileSha = null; }
+                        expenses = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
+                    }
                 } else {
-                    // Push
                     const content = btoa(unescape(encodeURIComponent(JSON.stringify(expenses, null, 2))));
-                    const body = { message: `Update budget ${VERSION}`, content: content };
+                    const body = { message: `Update ${VERSION}`, content: content };
                     if (fileSha) body.sha = fileSha;
                     
                     const res = await fetch(url, {
@@ -339,17 +368,14 @@
                         headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify(body)
                     });
-                    if (res.ok) {
-                        const data = await res.json();
-                        fileSha = data.content.sha;
-                    } else { throw new Error('Push error'); }
+                    if (res.ok) fileSha = (await res.json()).content.sha;
                 }
                 setStatus('online', '已同步');
                 localStorage.setItem('local_backup', JSON.stringify(expenses));
                 renderUI();
             } catch (e) {
                 console.error(e);
-                setStatus('offline', '离线 (本地数据)');
+                setStatus('offline', '离线模式');
                 loadLocal();
             }
         }
@@ -358,8 +384,6 @@
             expenses = JSON.parse(localStorage.getItem('local_backup')) || [];
             renderUI();
         }
-
-        // --- 渲染 UI ---
 
         function renderUI() {
             renderPC();
@@ -379,13 +403,16 @@
                     <td><input type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)"></td>
                     <td><input type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)"></td>
                     <td><input type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)"></td>
-                    <td style="text-align:right"><button onclick="del(${index})" style="color:var(--danger); background:none; border:1px solid #555; padding:5px 10px;">×</button></td>
+                    <td style="text-align:right">
+                        <button onclick="del(${index})" style="background:none; border:none; color:var(--danger); cursor:pointer;">
+                            <svg class="icon"><use href="#icon-trash"></use></svg>
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // 优化后的手机端渲染
         function renderMobile() {
             const container = document.getElementById('mobileList');
             container.innerHTML = '';
@@ -400,35 +427,18 @@
                 
                 div.innerHTML = `
                     <div class="item-header">
-                        <div>
-                            ${item.name} 
-                            <span class="type-badge" style="color:${color}; border:1px solid ${color}">${item.type}</span>
-                        </div>
-                        <span style="color:${progress>=100?'#00ff88':'#888'}; font-size:0.9em;">
-                            ${progress}%
-                        </span>
+                        <div>${item.name} <span class="type-badge" style="color:${color}; border:1px solid ${color}">${item.type}</span></div>
+                        <span style="color:${progress>=100?'#00ff88':'#888'}; font-size:0.9em;">${progress}%</span>
                     </div>
-
                     <div class="item-body">
-                        <div class="field-group">
-                            <span class="field-label">总预算</span>
-                            <input class="field-input" type="number" value="${item.total}" onchange="upd(${index}, 'total', this.value)" style="color:var(--accent)">
-                        </div>
-                        <div class="field-group">
-                            <span class="field-label">定金</span>
-                            <input class="field-input" type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)">
-                        </div>
-                        <div class="field-group">
-                            <span class="field-label">次付</span>
-                            <input class="field-input" type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)">
-                        </div>
-                        <div class="field-group">
-                            <span class="field-label">尾款</span>
-                            <input class="field-input" type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)">
-                        </div>
+                        <div><span class="field-label">总预算</span><input class="field-input" type="number" value="${item.total}" onchange="upd(${index}, 'total', this.value)" style="color:var(--accent)"></div>
+                        <div><span class="field-label">定金</span><input class="field-input" type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)"></div>
+                        <div><span class="field-label">次付</span><input class="field-input" type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)"></div>
+                        <div><span class="field-label">尾款</span><input class="field-input" type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)"></div>
                     </div>
-
-                    <button class="btn-card-delete" onclick="del(${index})">🗑️ 删除此项</button>
+                    <button class="btn-card-delete" onclick="del(${index})">
+                        <svg class="icon"><use href="#icon-trash"></use></svg> 删除此项
+                    </button>
                 `;
                 container.appendChild(div);
             });
@@ -450,55 +460,33 @@
             document.getElementById('txtPaid').innerText = paid.toLocaleString();
             document.getElementById('txtRemain').innerText = (total - paid).toLocaleString();
 
-            // 饼图
             const ctx = document.getElementById('budgetChart').getContext('2d');
             const labels = Object.keys(stats);
             const data = labels.map(k => stats[k]);
             const bgColors = labels.map((_, i) => COLORS[i % COLORS.length]);
 
             if(myChart) myChart.destroy();
-            
-            // 3D/Glass Chart Config
             myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: labels,
                     datasets: [{
-                        data: data,
-                        backgroundColor: bgColors,
-                        borderWidth: 0,
-                        hoverOffset: 15, // 悬浮凸起
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0,0,0,0.5)'
+                        data: data, backgroundColor: bgColors, borderWidth: 0, hoverOffset: 15,
+                        shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)'
                     }]
                 },
                 options: {
                     maintainAspectRatio: false,
                     layout: { padding: 20 },
-                    elements: {
-                        arc: {
-                            borderWidth: 0
-                        }
-                    },
                     plugins: { 
-                        legend: { 
-                            position: 'bottom', 
-                            labels: { 
-                                color: '#ccc', 
-                                padding: 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            } 
-                        } 
+                        legend: { position: 'bottom', labels: { color: '#ccc', usePointStyle: true, padding: 20 } } 
                     }
                 }
             });
 
-            // 进度条
             const barCont = document.getElementById('progressBarContainer');
             barCont.innerHTML = '';
             
-            // 总体进度
             const totalPct = total > 0 ? (paid/total*100) : 0;
             addBar(barCont, '总支付进度', totalPct, '#00ff88');
 
@@ -512,27 +500,16 @@
             const div = document.createElement('div');
             div.className = 'progress-group';
             div.innerHTML = `
-                <div class="progress-labels">
-                    <span>${label}</span>
-                    <span>${pct.toFixed(1)}%</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:${pct}%; background:${color}; box-shadow: 0 0 10px ${color}"></div>
-                </div>
+                <div class="progress-labels"><span>${label}</span><span>${pct.toFixed(1)}%</span></div>
+                <div class="progress-track"><div class="progress-fill" style="width:${pct}%; background:${color}; box-shadow: 0 0 10px ${color}"></div></div>
             `;
             container.appendChild(div);
         }
 
-        // --- 辅助函数 ---
         function upd(i, k, v) { expenses[i][k] = v; renderCharts(); syncData(); }
         function del(i) { if(confirm('确认删除?')) { expenses.splice(i, 1); syncData(); } }
         function addNewItem() {
-            expenses.push({ 
-                type: document.getElementById('inType').value || '未分类', 
-                name: document.getElementById('inName').value || '新项目',
-                total: document.getElementById('inTotal').value || 0,
-                deposit: 0, second: 0, final: 0
-            });
+            expenses.push({ type: document.getElementById('inType').value||'未分类', name: document.getElementById('inName').value||'新项目', total: document.getElementById('inTotal').value||0, deposit:0, second:0, final:0 });
             ['inName','inTotal','inDeposit','inSecond','inFinal'].forEach(id=>document.getElementById(id).value='');
             syncData();
         }
@@ -540,12 +517,7 @@
         function openModal() { document.getElementById('configModal').style.display='flex'; }
         function closeModal() { document.getElementById('configModal').style.display='none'; }
         function saveConfig() {
-            githubConfig = {
-                token: document.getElementById('cfgToken').value,
-                user: document.getElementById('cfgUser').value,
-                repo: document.getElementById('cfgRepo').value,
-                path: document.getElementById('cfgPath').value
-            };
+            githubConfig = { token: document.getElementById('cfgToken').value, user: document.getElementById('cfgUser').value, repo: document.getElementById('cfgRepo').value, path: document.getElementById('cfgPath').value };
             localStorage.setItem('gh_config', JSON.stringify(githubConfig));
             closeModal();
             syncData(true);
