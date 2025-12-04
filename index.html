@@ -3,24 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Renovation Budget Pro</title>
-    <!-- 引入 Chart.js -->
+    <title>Renovation Budget Pro v1.4</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- 引入 Google Fonts: Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* 默认主题变量 */
+            /* 基础变量 */
             --bg-base: #0f0f12;
-            --card-base-r: 30; 
-            --card-base-g: 30; 
-            --card-base-b: 30;
+            --card-base-r: 30; --card-base-g: 30; --card-base-b: 30;
             --accent: #00d4ff;
             
-            /* 派生变量 */
+            /* 计算变量 */
             --glass-bg: rgba(var(--card-base-r), var(--card-base-g), var(--card-base-b), 0.6);
             --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #e0e0e0;
@@ -30,61 +26,48 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Montserrat', -apple-system, sans-serif; /* 全局字体升级 */
             background-color: var(--bg-base);
-            /* 动态背景渐变：基于底色提亮 */
             background-image: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.05) 0%, var(--bg-base) 60%);
             color: var(--text-main);
-            margin: 0;
-            padding: 15px;
-            padding-bottom: 120px;
+            margin: 0; padding: 15px; padding-bottom: 120px;
             transition: background-color 0.5s ease;
         }
 
-        /* --- SVG Icons --- */
+        /* 通用图标 */
         .icon { width: 16px; height: 16px; fill: currentColor; vertical-align: text-bottom; margin-right: 4px; }
         .icon-lg { width: 24px; height: 24px; margin: 0; }
 
-        /* --- 玻璃卡片 --- */
+        /* 玻璃卡片 */
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 24px 20px;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            padding: 24px 20px; margin-bottom: 25px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-            margin-bottom: 25px;
             transition: background 0.3s;
         }
 
-        /* --- 头部设计 (Font Upgrade) --- */
+        /* 标题 */
         .header-box { text-align: center; margin-bottom: 30px; margin-top: 10px; }
         h1 { 
-            font-family: 'Montserrat', sans-serif; /* 英文专用字体 */
-            margin: 0; 
-            font-weight: 700; 
-            letter-spacing: 2px; 
-            color: #fff; 
-            text-transform: uppercase;
-            font-size: 1.8rem;
+            font-weight: 700; letter-spacing: 2px; color: #fff; 
+            text-transform: uppercase; font-size: 1.8rem;
             text-shadow: 0 0 15px rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         .version-tag {
-            font-family: 'Consolas', monospace;
-            font-size: 0.7rem; font-weight: normal; letter-spacing: 0;
-            background: rgba(255,255,255,0.1); 
-            padding: 2px 6px; border-radius: 4px; color: var(--text-muted);
-            border: 1px solid var(--glass-border);
-            vertical-align: super;
+            font-family: 'Consolas', monospace; font-size: 0.7rem; 
+            background: rgba(255,255,255,0.1); padding: 2px 6px; 
+            border-radius: 4px; color: var(--text-muted); border: 1px solid var(--glass-border);
+            vertical-align: super; letter-spacing: 0;
         }
 
-        /* --- 配置栏 --- */
+        /* 配置栏 */
         .config-bar { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 15px; align-items: center;}
         .btn-config { 
             background: rgba(255,255,255,0.05); color: #ccc; border: 1px solid var(--glass-border);
-            padding: 8px 14px; font-size: 0.75rem; border-radius: 8px; font-family: 'Montserrat', sans-serif;
+            padding: 8px 14px; font-size: 0.75rem; border-radius: 8px; font-weight: 600;
             display: flex; align-items: center; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-config:active { background: rgba(255,255,255,0.1); transform: scale(0.98); }
@@ -93,36 +76,26 @@
         .status-dot.syncing { background: #ffd700; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0.5; } }
 
-        /* --- 视觉模块 --- */
+        /* 图表区 */
         .visual-module { display: flex; flex-wrap: wrap; gap: 30px; }
-        .chart-box { 
-            flex: 1; min-width: 280px; height: 300px; position: relative; 
-            display: flex; justify-content: center; align-items: center;
-        }
+        .chart-box { flex: 1; min-width: 280px; height: 300px; position: relative; display: flex; justify-content: center; align-items: center; }
         #budgetChart { filter: drop-shadow(0px 10px 8px rgba(0,0,0,0.5)); }
 
         .stats-bars { flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center; }
         .progress-group { margin-bottom: 15px; }
-        .progress-labels { display: flex; justify-content: space-between; font-size: 0.85em; color: var(--text-muted); margin-bottom: 6px; font-family: 'Montserrat', sans-serif;}
+        .progress-labels { display: flex; justify-content: space-between; font-size: 0.85em; color: var(--text-muted); margin-bottom: 6px; }
         .progress-track { background: rgba(0,0,0,0.3); height: 6px; border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
 
         .total-summary { 
-            display: flex; justify-content: space-around; 
-            margin-top: 35px; padding-top: 25px; 
+            display: flex; justify-content: space-around; margin-top: 35px; padding-top: 25px; 
             border-top: 1px solid var(--glass-border); gap: 10px;
         }
         .summary-item { text-align: center; flex: 1; }
-        .summary-label { 
-            font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; display: block; 
-            text-transform: uppercase; letter-spacing: 1px; font-family: 'Montserrat', sans-serif;
-        }
-        .money { 
-            font-family: 'Montserrat', sans-serif; font-size: 1.25em; font-weight: 600; color: #fff; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5); display: block;
-        }
+        .summary-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+        .money { font-size: 1.25em; font-weight: 600; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); display: block; }
 
-        /* --- 输入与表格 --- */
+        /* 输入与列表 */
         input, select { 
             background: var(--input-bg); border: 1px solid var(--glass-border); color: #fff; 
             padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box;
@@ -132,33 +105,36 @@
 
         .input-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 25px; }
         .btn-add { 
-            background: var(--accent); /* 使用自定义颜色 */
-            color: #0f0f12; border: none; padding: 14px; grid-column: 1 / -1; 
-            border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 1px;
-            transition: filter 0.2s;
+            background: var(--accent); color: #0f0f12; border: none; padding: 14px; grid-column: 1 / -1; 
+            border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; gap: 8px;
+            text-transform: uppercase; letter-spacing: 1px; transition: filter 0.2s;
         }
         .btn-add:hover { filter: brightness(1.1); }
 
+        /* PC 表格样式 (v1.4 新增色块) */
         .table-view { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
         .table-view th { 
-            text-align: left; padding: 12px; color: var(--text-muted); 
-            border-bottom: 1px solid var(--glass-border); cursor: pointer; 
-            font-family: 'Montserrat', sans-serif; text-transform: uppercase; font-size: 0.75rem;
+            text-align: left; padding: 12px; color: var(--text-muted); border-bottom: 1px solid var(--glass-border); 
+            cursor: pointer; text-transform: uppercase; font-size: 0.75rem; font-weight: 600;
         }
-        .table-view td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .table-view td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
         .table-view input { border: none; background: transparent; padding: 5px; font-family: 'Consolas', monospace; }
+        
+        /* 这里的色块 */
+        .type-swatch { 
+            width: 10px; height: 10px; border-radius: 3px; display: inline-block; 
+            margin-right: 8px; vertical-align: middle; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
 
+        /* 手机端列表 */
         .card-list-view { display: none; flex-direction: column; gap: 25px; }
         .item-card { 
             background: rgba(40, 40, 40, 0.4); border: 1px solid var(--glass-border);
             border-radius: 12px; padding: 18px 18px 0 18px; position: relative; overflow: hidden;
         }
-        .item-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; background: var(--item-color, #888); }
-        
-        .item-header { display: flex; justify-content: space-between; margin-bottom: 18px; font-weight: 600; font-size: 1.1em; padding-left: 8px; align-items: center; font-family: 'Montserrat', sans-serif;}
+        .item-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background: var(--item-color, #888); }
+        .item-header { display: flex; justify-content: space-between; margin-bottom: 18px; font-weight: 600; font-size: 1.1em; padding-left: 8px; align-items: center; }
         .type-badge { font-weight: 500; font-size: 0.65em; background: rgba(255,255,255,0.08); padding: 4px 8px; border-radius: 6px; margin-left: 8px; color: #ccc; text-transform: uppercase;}
         
         .item-body { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-left: 8px; padding-bottom: 20px; }
@@ -170,39 +146,31 @@
             background: rgba(255, 68, 68, 0.08); color: #ff6666; border: none;
             border-top: 1px solid rgba(255, 68, 68, 0.15); padding: 14px;
             font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 1px;
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
         }
 
-        /* --- 悬浮按钮组 --- */
-        .fab-container {
-            position: fixed; bottom: 30px; right: 25px;
-            display: flex; flex-direction: column; gap: 15px; z-index: 999;
-        }
-
+        /* 悬浮按钮 */
+        .fab-container { position: fixed; bottom: 30px; right: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 999; }
         .fab {
-            width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            border: none; cursor: pointer; transition: transform 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            color: #fff;
+            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: #fff;
         }
         .fab:active { transform: scale(0.9); }
-        
         .fab-save { background: var(--accent); color: #0f0f12; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
         .fab-theme { background: #2a2a2a; border: 1px solid var(--glass-border); }
 
-        /* --- 模态框 --- */
+        /* 模态框 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-content { background: #1e1e1e; padding: 30px; border-radius: 16px; width: 85%; max-width: 350px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 15px; }
+        .modal-content { background: #1e1e1e; padding: 30px; border-radius: 16px; width: 85%; max-width: 350px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 15px; max-height: 80vh; overflow-y: auto; }
         
         /* 调色盘控件 */
-        .color-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .color-label { font-size: 0.9rem; color: #ccc; font-family: 'Montserrat', sans-serif;}
-        input[type="color"] {
-            -webkit-appearance: none; border: none; width: 40px; height: 40px; padding: 0; background: none; border-radius: 50%; overflow: hidden; cursor: pointer; box-shadow: 0 0 0 2px #444;
-        }
+        .color-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .color-label { font-size: 0.85rem; color: #ccc; font-weight: 500; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: 36px; height: 36px; padding: 0; background: none; border-radius: 50%; overflow: hidden; cursor: pointer; box-shadow: 0 0 0 2px #444; }
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: none; }
+        
+        .section-title { font-size: 0.8rem; text-transform: uppercase; color: var(--accent); margin-top: 10px; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
 
         @media screen and (max-width: 768px) {
             .table-view { display: none; } .card-list-view { display: flex; }
@@ -215,7 +183,7 @@
 </head>
 <body>
 
-    <!-- SVG 图标库 -->
+    <!-- SVG 图标 -->
     <svg style="display: none;">
         <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></symbol>
         <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9,14.21,4,12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8,7.99,8c3.73,0,6.84-2.55,7.73-6h-2.08 c-0.82,2.33-3.04,4-5.65,4c-3.31,0-6-2.69-6-6s2.69-6,6-6c1.66,0,3.14,0.69,4.22,1.78L13,11h7V4L17.65,6.35z"/></symbol>
@@ -225,10 +193,10 @@
         <symbol id="icon-palette" viewBox="0 0 24 24"><path d="M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9c0.83,0,1.5-0.67,1.5-1.5c0-0.39-0.15-0.74-0.39-1.01 c-0.23-0.26-0.38-0.61-0.38-0.99c0-0.83,0.67-1.5,1.5-1.5H16c2.76,0,5-2.24,5-5C21,5.24,16.97,3,12,3z M6.5,12 c-0.83,0-1.5-0.67-1.5-1.5S5.67,9,6.5,9S8,9.67,8,10.5S7.33,12,6.5,12z M9.5,8C8.67,8,8,7.33,8,6.5S8.67,5,9.5,5S11,5.67,11,6.5 S10.33,8,9.5,8z M14.5,8c-0.83,0-1.5-0.67-1.5-1.5S13.67,5,14.5,5S16,5.67,16,6.5S15.33,8,14.5,8z M17.5,12 c-0.83,0-1.5-0.67-1.5-1.5S16.67,9,17.5,9S19,9.67,19,10.5S18.33,12,17.5,12z"/></symbol>
     </svg>
 
-    <!-- 配置模态框 (GitHub) -->
+    <!-- 配置模态框 -->
     <div id="configModal" class="modal">
         <div class="modal-content">
-            <h3 style="color:var(--accent); margin:0; font-family:'Montserrat',sans-serif;">GitHub Sync</h3>
+            <h3 style="color:var(--accent); margin:0;">GitHub Sync</h3>
             <input type="password" id="cfgToken" placeholder="GitHub Token (ghp_...)">
             <input type="text" id="cfgUser" placeholder="Username">
             <input type="text" id="cfgRepo" placeholder="Repository">
@@ -238,80 +206,61 @@
         </div>
     </div>
 
-    <!-- 主题模态框 (Color Picker) -->
+    <!-- 调色盘模态框 (Color Picker) -->
     <div id="themeModal" class="modal">
         <div class="modal-content">
-            <h3 style="color:var(--accent); margin:0; font-family:'Montserrat',sans-serif;">Theme Studio</h3>
+            <h3 style="color:var(--accent); margin:0; margin-bottom:10px;">Theme Studio</h3>
             
+            <div class="section-title">Global Appearance</div>
             <div class="color-row">
-                <span class="color-label">Background Color</span>
+                <span class="color-label">Background</span>
                 <input type="color" id="pickerBg" value="#0f0f12" onchange="updateTheme('bg', this.value)">
             </div>
-            
             <div class="color-row">
-                <span class="color-label">Card Tint (Glass)</span>
+                <span class="color-label">Card Tint</span>
                 <input type="color" id="pickerCard" value="#1e1e1e" onchange="updateTheme('card', this.value)">
             </div>
-            
             <div class="color-row">
                 <span class="color-label">Accent Color</span>
                 <input type="color" id="pickerAccent" value="#00d4ff" onchange="updateTheme('accent', this.value)">
             </div>
 
-            <button onclick="resetTheme()" style="background:#444; color:#fff; border:none; padding:10px; border-radius:6px; cursor:pointer; font-family:'Montserrat',sans-serif;">Reset Defaults</button>
+            <!-- 动态类型颜色列表 -->
+            <div class="section-title">Category Colors</div>
+            <div id="typeColorList" style="display:flex; flex-direction:column; gap:5px;">
+                <!-- JS 会自动填充 -->
+            </div>
+
+            <button onclick="resetTheme()" style="background:#444; color:#fff; border:none; padding:10px; border-radius:6px; cursor:pointer; margin-top:15px; font-weight:600;">Reset All</button>
             <button onclick="closeModal('themeModal')" style="background:transparent; color:#888; border:none; margin-top:5px;">Done</button>
         </div>
     </div>
 
     <div class="container">
-        <!-- Header -->
         <div class="header-box">
-            <h1>
-                Renovation Budget <span class="version-tag" id="verTag"></span>
-            </h1>
-            
+            <h1>Renovation Budget <span class="version-tag" id="verTag"></span></h1>
             <div class="config-bar">
                 <div style="margin-right: auto; display:flex; align-items:center;">
                     <span id="statusDot" class="status-dot"></span>
                     <span id="statusText" style="font-size:0.8rem; color:#888;">Initializing...</span>
                 </div>
-                <button class="btn-config" onclick="openModal('configModal')">
-                    <svg class="icon"><use href="#icon-settings"></use></svg> Settings
-                </button>
-                <button class="btn-config" onclick="syncData(true)">
-                    <svg class="icon"><use href="#icon-refresh"></use></svg> Sync
-                </button>
+                <button class="btn-config" onclick="openModal('configModal')"><svg class="icon"><use href="#icon-settings"></use></svg> Settings</button>
+                <button class="btn-config" onclick="syncData(true)"><svg class="icon"><use href="#icon-refresh"></use></svg> Sync</button>
             </div>
         </div>
 
-        <!-- Charts -->
         <div class="glass-card visual-module">
-            <div class="chart-box">
-                <canvas id="budgetChart"></canvas>
-            </div>
+            <div class="chart-box"><canvas id="budgetChart"></canvas></div>
             <div class="stats-bars" id="progressBarContainer"></div>
-            
             <div class="total-summary">
-                <div class="summary-item">
-                    <span class="summary-label">Total Budget</span>
-                    <span id="txtTotal" class="money">0</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">Paid</span>
-                    <span id="txtPaid" class="money" style="color:#00ff88; text-shadow:0 0 10px rgba(0,255,136,0.25)">0</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">Remaining</span>
-                    <span id="txtRemain" class="money" style="color:#888">0</span>
-                </div>
+                <div class="summary-item"><span class="summary-label">Total Budget</span><span id="txtTotal" class="money">0</span></div>
+                <div class="summary-item"><span class="summary-label">Paid</span><span id="txtPaid" class="money" style="color:#00ff88; text-shadow:0 0 10px rgba(0,255,136,0.25)">0</span></div>
+                <div class="summary-item"><span class="summary-label">Remaining</span><span id="txtRemain" class="money" style="color:#888">0</span></div>
             </div>
         </div>
 
-        <!-- Input & List -->
         <div class="glass-card">
-            <h2 style="margin-top:0; font-weight:300; font-size:1.2rem; color:var(--accent); border-bottom:1px solid var(--glass-border); padding-bottom:15px; margin-bottom:20px; font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px;">
-                Expense Details
-            </h2>
+            <h2 style="margin-top:0; font-weight:300; font-size:1.2rem; color:var(--accent); border-bottom:1px solid var(--glass-border); padding-bottom:15px; margin-bottom:20px; text-transform:uppercase; letter-spacing:1px;">Expense Details</h2>
             
             <div class="input-area">
                 <input type="text" id="inType" placeholder="Type (e.g., Hard Decor)" list="typeList">
@@ -323,9 +272,7 @@
                 <input type="number" id="inDeposit" placeholder="Deposit">
                 <input type="number" id="inSecond" placeholder="2nd Pay">
                 <input type="number" id="inFinal" placeholder="Final">
-                <button class="btn-add" onclick="addNewItem()">
-                    <svg class="icon"><use href="#icon-plus"></use></svg> ADD ITEM
-                </button>
+                <button class="btn-add" onclick="addNewItem()"><svg class="icon"><use href="#icon-plus"></use></svg> ADD ITEM</button>
             </div>
 
             <table class="table-view" id="pcTable">
@@ -347,18 +294,13 @@
         </div>
     </div>
 
-    <!-- Floating Action Buttons -->
     <div class="fab-container">
-        <button class="fab fab-theme" onclick="openModal('themeModal')" title="Change Theme">
-            <svg class="icon-lg"><use href="#icon-palette"></use></svg>
-        </button>
-        <button class="fab fab-save" onclick="syncData()" title="Save to Cloud">
-            <svg class="icon-lg" style="fill:#000;"><use href="#icon-save"></use></svg>
-        </button>
+        <button class="fab fab-theme" onclick="openModal('themeModal')" title="Theme & Colors"><svg class="icon-lg"><use href="#icon-palette"></use></svg></button>
+        <button class="fab fab-save" onclick="syncData()" title="Save"><svg class="icon-lg" style="fill:#000;"><use href="#icon-save"></use></svg></button>
     </div>
 
     <script>
-        const VERSION = "v1.3";
+        const VERSION = "v1.4";
         document.getElementById('verTag').innerText = VERSION;
 
         let expenses = [];
@@ -366,11 +308,13 @@
         let fileSha = null;
         let myChart = null;
 
-        const COLORS = ['#00d4ff', '#ff00cc', '#ffe600', '#00ff88', '#ff6600', '#9933ff'];
+        // 默认霓虹色盘
+        const DEFAULT_PALETTE = ['#00d4ff', '#ff00cc', '#ffe600', '#00ff88', '#ff6600', '#9933ff', '#3366ff', '#ff3366'];
+        // 读取已保存的类型颜色映射
+        let typeColorMap = JSON.parse(localStorage.getItem('type_colors')) || {};
 
-        // --- Init ---
         window.onload = function() {
-            initTheme(); // Initialize colors
+            initTheme(); 
             if (!githubConfig) {
                 setStatus('offline', 'Local Mode');
                 setTimeout(() => openModal('configModal'), 1000);
@@ -380,20 +324,56 @@
             }
         };
 
-        // --- Theme Logic ---
+        // --- Color Logic ---
+        function getTypeColor(type) {
+            // 如果已有颜色，返回
+            if (typeColorMap[type]) return typeColorMap[type];
+            
+            // 如果没有，分配一个新颜色（循环使用默认色盘）
+            const keys = Object.keys(typeColorMap);
+            const nextColor = DEFAULT_PALETTE[keys.length % DEFAULT_PALETTE.length];
+            typeColorMap[type] = nextColor;
+            localStorage.setItem('type_colors', JSON.stringify(typeColorMap));
+            return nextColor;
+        }
+
+        function setTypeColor(type, color) {
+            typeColorMap[type] = color;
+            localStorage.setItem('type_colors', JSON.stringify(typeColorMap));
+            renderUI(); // 实时刷新界面
+        }
+
+        function renderThemeModalDynamic() {
+            const container = document.getElementById('typeColorList');
+            container.innerHTML = '';
+            
+            // 获取当前所有去重后的类型
+            const currentTypes = [...new Set(expenses.map(e => e.type))].sort();
+            
+            if (currentTypes.length === 0) {
+                container.innerHTML = '<span style="color:#666; font-size:0.8rem;">Add items to customize category colors.</span>';
+                return;
+            }
+
+            currentTypes.forEach(type => {
+                const color = getTypeColor(type);
+                const div = document.createElement('div');
+                div.className = 'color-row';
+                div.innerHTML = `
+                    <span class="color-label">${type}</span>
+                    <input type="color" value="${color}" onchange="setTypeColor('${type}', this.value)">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // --- Theme Global Logic ---
         function initTheme() {
             const theme = JSON.parse(localStorage.getItem('user_theme')) || {};
             if(theme.bg) applyThemeVar('--bg-base', theme.bg);
             if(theme.accent) applyThemeVar('--accent', theme.accent);
-            if(theme.card) {
-                const rgb = hexToRgb(theme.card);
-                if(rgb) {
-                    document.documentElement.style.setProperty('--card-base-r', rgb.r);
-                    document.documentElement.style.setProperty('--card-base-g', rgb.g);
-                    document.documentElement.style.setProperty('--card-base-b', rgb.b);
-                }
-            }
-            // Set input values
+            if(theme.card) updateCardTint(theme.card);
+            
             if(theme.bg) document.getElementById('pickerBg').value = theme.bg;
             if(theme.accent) document.getElementById('pickerAccent').value = theme.accent;
             if(theme.card) document.getElementById('pickerCard').value = theme.card;
@@ -401,51 +381,37 @@
 
         function updateTheme(type, val) {
             const theme = JSON.parse(localStorage.getItem('user_theme')) || {};
-            
-            if (type === 'bg') {
-                applyThemeVar('--bg-base', val);
-                theme.bg = val;
-            } else if (type === 'accent') {
-                applyThemeVar('--accent', val);
-                theme.accent = val;
-            } else if (type === 'card') {
-                const rgb = hexToRgb(val);
-                if(rgb) {
-                    document.documentElement.style.setProperty('--card-base-r', rgb.r);
-                    document.documentElement.style.setProperty('--card-base-g', rgb.g);
-                    document.documentElement.style.setProperty('--card-base-b', rgb.b);
-                }
-                theme.card = val;
-            }
+            if (type === 'bg') { applyThemeVar('--bg-base', val); theme.bg = val; }
+            if (type === 'accent') { applyThemeVar('--accent', val); theme.accent = val; }
+            if (type === 'card') { updateCardTint(val); theme.card = val; }
             localStorage.setItem('user_theme', JSON.stringify(theme));
         }
 
+        function updateCardTint(hex) {
+            const rgb = hexToRgb(hex);
+            if(rgb) {
+                document.documentElement.style.setProperty('--card-base-r', rgb.r);
+                document.documentElement.style.setProperty('--card-base-g', rgb.g);
+                document.documentElement.style.setProperty('--card-base-b', rgb.b);
+            }
+        }
+        function applyThemeVar(name, val) { document.documentElement.style.setProperty(name, val); }
+        function hexToRgb(hex) {
+            const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return r ? { r: parseInt(r[1], 16), g: parseInt(r[2], 16), b: parseInt(r[3], 16) } : null;
+        }
         function resetTheme() {
             localStorage.removeItem('user_theme');
+            localStorage.removeItem('type_colors'); // 同时也重置分类颜色
             location.reload();
         }
 
-        function applyThemeVar(name, val) {
-            document.documentElement.style.setProperty(name, val);
-        }
-
-        function hexToRgb(hex) {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }
-
-        // --- Data Logic ---
+        // --- Data & Rendering ---
         async function syncData(forcePull = false) {
             if (!githubConfig) { renderUI(); return; }
             setStatus('syncing', 'Syncing...');
-            
             const { token, user, repo, path } = githubConfig;
             const url = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
-
             try {
                 if (forcePull) {
                     const res = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
@@ -458,10 +424,8 @@
                     const content = btoa(unescape(encodeURIComponent(JSON.stringify(expenses, null, 2))));
                     const body = { message: `Update ${VERSION}`, content: content };
                     if (fileSha) body.sha = fileSha;
-                    
                     const res = await fetch(url, {
-                        method: 'PUT',
-                        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                        method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify(body)
                     });
                     if (res.ok) fileSha = (await res.json()).content.sha;
@@ -469,17 +433,10 @@
                 setStatus('online', 'Synced');
                 localStorage.setItem('local_backup', JSON.stringify(expenses));
                 renderUI();
-            } catch (e) {
-                console.error(e);
-                setStatus('offline', 'Offline');
-                loadLocal();
-            }
+            } catch (e) { console.error(e); setStatus('offline', 'Offline'); loadLocal(); }
         }
 
-        function loadLocal() {
-            expenses = JSON.parse(localStorage.getItem('local_backup')) || [];
-            renderUI();
-        }
+        function loadLocal() { expenses = JSON.parse(localStorage.getItem('local_backup')) || []; renderUI(); }
 
         function renderUI() {
             renderPC();
@@ -491,18 +448,20 @@
             const tbody = document.getElementById('pcTableBody');
             tbody.innerHTML = '';
             expenses.forEach((item, index) => {
+                const color = getTypeColor(item.type); // 获取统一颜色
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><input value="${item.type}" onchange="upd(${index}, 'type', this.value)"></td>
+                    <td style="display:flex; align-items:center;">
+                        <span class="type-swatch" style="background:${color}"></span>
+                        <input value="${item.type}" onchange="upd(${index}, 'type', this.value)" style="flex:1;">
+                    </td>
                     <td><input value="${item.name}" onchange="upd(${index}, 'name', this.value)"></td>
                     <td><input type="number" value="${item.total}" onchange="upd(${index}, 'total', this.value)"></td>
                     <td><input type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)"></td>
                     <td><input type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)"></td>
                     <td><input type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)"></td>
                     <td style="text-align:right">
-                        <button onclick="del(${index})" style="background:none; border:none; color:var(--danger); cursor:pointer;">
-                            <svg class="icon"><use href="#icon-trash"></use></svg>
-                        </button>
+                        <button onclick="del(${index})" style="background:none; border:none; color:var(--danger); cursor:pointer;"><svg class="icon"><use href="#icon-trash"></use></svg></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -513,14 +472,12 @@
             const container = document.getElementById('mobileList');
             container.innerHTML = '';
             expenses.forEach((item, index) => {
-                const color = COLORS[index % COLORS.length];
+                const color = getTypeColor(item.type); // 获取统一颜色
                 const paid = (parseFloat(item.deposit)||0) + (parseFloat(item.second)||0) + (parseFloat(item.final)||0);
                 const progress = item.total > 0 ? Math.round(paid / item.total * 100) : 0;
-
                 const div = document.createElement('div');
                 div.className = 'item-card';
                 div.style.setProperty('--item-color', color);
-                
                 div.innerHTML = `
                     <div class="item-header">
                         <div>${item.name} <span class="type-badge" style="color:${color}; border:1px solid ${color}">${item.type}</span></div>
@@ -532,9 +489,7 @@
                         <div><span class="field-label">2nd Pay</span><input class="field-input" type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)"></div>
                         <div><span class="field-label">Final</span><input class="field-input" type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)"></div>
                     </div>
-                    <button class="btn-card-delete" onclick="del(${index})">
-                        <svg class="icon"><use href="#icon-trash"></use></svg> Remove Item
-                    </button>
+                    <button class="btn-card-delete" onclick="del(${index})"><svg class="icon"><use href="#icon-trash"></use></svg> Remove Item</button>
                 `;
                 container.appendChild(div);
             });
@@ -557,42 +512,31 @@
             const ctx = document.getElementById('budgetChart').getContext('2d');
             const labels = Object.keys(stats);
             const data = labels.map(k => stats[k]);
-            const bgColors = labels.map((_, i) => COLORS[i % COLORS.length]);
+            // 使用 getTypeColor 获取统一颜色
+            const bgColors = labels.map(type => getTypeColor(type));
 
             if(myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data, backgroundColor: bgColors, borderWidth: 0, hoverOffset: 15,
-                        shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)'
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    layout: { padding: 20 },
-                    plugins: { legend: { position: 'bottom', labels: { color: '#ccc', usePointStyle: true, padding: 20, font: {family: "'Montserrat', sans-serif"} } } }
-                }
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: bgColors, borderWidth: 0, hoverOffset: 15, shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)' }] },
+                options: { maintainAspectRatio: false, layout: { padding: 20 }, plugins: { legend: { position: 'bottom', labels: { color: '#ccc', usePointStyle: true, padding: 20, font: {family: "'Montserrat', sans-serif"} } } } }
             });
 
             const barCont = document.getElementById('progressBarContainer');
             barCont.innerHTML = '';
             const totalPct = total > 0 ? (paid/total*100) : 0;
-            addBar(barCont, 'Total Payment Progress', totalPct, '#00ff88');
-            labels.forEach((type, i) => {
+            addBar(barCont, 'Total Payment', totalPct, '#00ff88');
+            labels.forEach(type => {
                 const pct = total > 0 ? (stats[type] / total * 100) : 0;
-                addBar(barCont, `${type} Share`, pct, COLORS[i % COLORS.length]);
+                // 使用 getTypeColor 获取统一颜色
+                addBar(barCont, `${type} Share`, pct, getTypeColor(type));
             });
         }
 
         function addBar(container, label, pct, color) {
-            const div = document.createElement('div');
-            div.className = 'progress-group';
-            div.innerHTML = `
-                <div class="progress-labels"><span>${label}</span><span>${pct.toFixed(1)}%</span></div>
-                <div class="progress-track"><div class="progress-fill" style="width:${pct}%; background:${color}; box-shadow: 0 0 10px ${color}"></div></div>
-            `;
+            const div = document.createElement('div'); div.className = 'progress-group';
+            div.innerHTML = `<div class="progress-labels"><span>${label}</span><span>${pct.toFixed(1)}%</span></div>
+                <div class="progress-track"><div class="progress-fill" style="width:${pct}%; background:${color}; box-shadow: 0 0 10px ${color}"></div></div>`;
             container.appendChild(div);
         }
 
@@ -604,13 +548,18 @@
             syncData();
         }
         function sortData(k) { expenses.sort((a,b)=>(a[k]>b[k]?1:-1)); renderUI(); }
-        function openModal(id) { document.getElementById(id).style.display='flex'; }
+        
+        function openModal(id) { 
+            document.getElementById(id).style.display='flex';
+            // 如果打开的是调色盘，动态生成列表
+            if(id === 'themeModal') renderThemeModalDynamic(); 
+        }
         function closeModal(id) { document.getElementById(id).style.display='none'; }
+        
         function saveConfig() {
             githubConfig = { token: document.getElementById('cfgToken').value, user: document.getElementById('cfgUser').value, repo: document.getElementById('cfgRepo').value, path: document.getElementById('cfgPath').value };
             localStorage.setItem('gh_config', JSON.stringify(githubConfig));
-            closeModal('configModal');
-            syncData(true);
+            closeModal('configModal'); syncData(true);
         }
         function setStatus(cls, txt) {
             document.getElementById('statusDot').className = `status-dot ${cls}`;
