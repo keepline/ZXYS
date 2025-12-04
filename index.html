@@ -7,119 +7,177 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
+            --bg-color: #0f0f12; /* 更深邃的背景 */
+            --glass-bg: rgba(30, 30, 30, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #e0e0e0;
             --text-muted: #888888;
             --accent: #00d4ff;
             --danger: #ff4444;
-            --border: #333;
-            --input-bg: #2a2a2a;
+            --input-bg: rgba(0, 0, 0, 0.3);
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, var(--bg-color) 60%); /* 增加顶部微光 */
             color: var(--text-main);
             margin: 0;
-            padding: 10px;
-            padding-bottom: 80px; /* 为手机端底部按钮留空 */
-        }
-
-        /* --- 通用组件 --- */
-        h1 { text-align: center; color: var(--accent); font-weight: 300; margin: 10px 0 20px 0; font-size: 1.5rem; }
-        
-        .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-        
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
             padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            padding-bottom: 100px;
         }
 
-        button { border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        input, select { background: var(--input-bg); border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 4px; }
-        input:focus { border-color: var(--accent); outline: none; }
+        /* --- 玻璃拟态卡片基类 --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            margin-bottom: 20px;
+        }
+
+        /* --- 标题与版本 --- */
+        .header-box { text-align: center; margin-bottom: 20px; }
+        h1 { 
+            margin: 5px 0; font-weight: 300; letter-spacing: 1px; color: #fff; 
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+        .version-tag {
+            font-size: 0.7rem; background: rgba(255,255,255,0.1); 
+            padding: 2px 8px; border-radius: 10px; color: var(--text-muted);
+            border: 1px solid var(--glass-border); vertical-align: middle;
+        }
 
         /* --- 顶部配置栏 --- */
-        .config-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 10px; }
-        .btn-config { background: #333; color: #ccc; padding: 5px 10px; font-size: 0.8rem; }
-        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; background: #555; margin-right: 5px; }
-        .status-dot.online { background: #00ff88; box-shadow: 0 0 5px #00ff88; }
+        .config-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; align-items: center;}
+        .btn-config { 
+            background: rgba(255,255,255,0.05); color: #ccc; border: 1px solid var(--glass-border);
+            padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;
+        }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; background: #555; margin-right: 5px; }
+        .status-dot.online { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
         .status-dot.syncing { background: #ffd700; animation: blink 1s infinite; }
-
         @keyframes blink { 50% { opacity: 0.5; } }
 
-        /* --- 视觉模块 --- */
+        /* --- 模块二：视觉统计 (3D Glass) --- */
         .visual-module { display: flex; flex-wrap: wrap; gap: 20px; }
-        .chart-box { flex: 1; min-width: 280px; height: 300px; position: relative; display: flex; justify-content: center; align-items: center;}
-        .stats-bars { flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+        .chart-box { 
+            flex: 1; min-width: 280px; height: 320px; position: relative; 
+            display: flex; justify-content: center; align-items: center;
+        }
+        /* 给Canvas加阴影提升层次 */
+        #budgetChart { filter: drop-shadow(0px 10px 8px rgba(0,0,0,0.5)); }
 
-        .progress-group { margin-bottom: 8px; }
-        .progress-labels { display: flex; justify-content: space-between; font-size: 0.85em; color: var(--text-muted); margin-bottom: 4px; }
-        .progress-track { background: #333; height: 8px; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.8s ease; }
-
-        .total-summary { text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
-        .total-summary div { display: inline-block; margin: 0 10px; }
-        .money { color: var(--accent); font-family: 'Consolas', monospace; font-size: 1.2em; font-weight: bold; }
-
-        /* --- 录入与列表模块 (PC/Mobile 响应式核心) --- */
+        .stats-bars { flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center; }
         
-        /* 录入区 */
-        .input-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 15px; }
-        .btn-add { background: var(--accent); color: #000; padding: 10px; grid-column: 1 / -1; }
+        .progress-group { margin-bottom: 12px; }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 0.85em; color: var(--text-muted); margin-bottom: 6px; }
+        .progress-track { background: rgba(0,0,0,0.3); height: 8px; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; box-shadow: 0 0 10px currentColor; }
 
-        /* 表格模式 (PC默认) */
-        .table-view { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .table-view th { text-align: left; padding: 10px; color: var(--text-muted); border-bottom: 2px solid var(--border); cursor: pointer; }
-        .table-view td { padding: 8px; border-bottom: 1px solid var(--border); }
-        .table-view input { width: 100%; background: transparent; border: none; color: #eee; font-family: 'Consolas', monospace; }
-        .table-view input:focus { background: #333; }
+        .total-summary { 
+            display: flex; justify-content: space-around; margin-top: 20px; padding-top: 20px; 
+            border-top: 1px solid var(--glass-border); 
+        }
+        .summary-item { text-align: center; }
+        .summary-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;}
+        .money { font-family: 'Consolas', monospace; font-size: 1.3em; font-weight: bold; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+        /* --- 模块一：录入与列表 --- */
+        input, select { 
+            background: var(--input-bg); border: 1px solid var(--glass-border); color: #fff; 
+            padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        input:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); outline: none; box-shadow: 0 0 10px rgba(0, 212, 255, 0.1); }
+
+        .input-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .btn-add { 
+            background: linear-gradient(135deg, var(--accent), #0099cc); 
+            color: #000; border: none; padding: 12px; grid-column: 1 / -1; 
+            border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-add:active { transform: scale(0.98); }
+
+        /* PC表格 */
+        .table-view { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+        .table-view th { text-align: left; padding: 12px; color: var(--text-muted); border-bottom: 1px solid var(--glass-border); cursor: pointer; }
+        .table-view td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .table-view input { border: none; background: transparent; padding: 5px; font-family: 'Consolas', monospace; }
+        .table-view input:focus { background: rgba(255,255,255,0.05); }
+
+        /* --- 手机端卡片列表 (重点优化) --- */
+        .card-list-view { display: none; flex-direction: column; gap: 20px; }
         
-        /* 卡片列表模式 (默认隐藏，手机端显示) */
-        .card-list-view { display: none; flex-direction: column; gap: 15px; }
-        .item-card { background: #252525; border-radius: 8px; padding: 15px; border-left: 4px solid var(--accent); position: relative; }
-        .item-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 1.1em; }
-        .item-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; color: var(--text-muted); align-items: center; }
-        .item-row input { text-align: right; width: 100px; background: rgba(0,0,0,0.2); border: 1px solid transparent; }
-        .item-row input:focus { border-color: var(--accent); background: #000; }
-        .btn-del-card { position: absolute; top: 10px; right: 10px; background: transparent; color: #ff4444; font-size: 1.2em; }
+        .item-card { 
+            background: rgba(40, 40, 40, 0.4); 
+            border: 1px solid var(--glass-border);
+            border-radius: 12px; 
+            padding: 15px 15px 0 15px; /* 底部留给按钮 */
+            position: relative; overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .item-card::before {
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+            background: var(--item-color, #888);
+        }
 
-        /* --- 响应式媒体查询 --- */
+        .item-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 1.1em; padding-left: 10px; align-items: center;}
+        .type-badge { font-weight: normal; font-size: 0.7em; background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 4px; margin-left: 5px; color: #ccc;}
+        
+        .item-body { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-left: 10px; padding-bottom: 15px; }
+        .field-group { display: flex; flex-direction: column; gap: 2px; }
+        .field-label { font-size: 0.75em; color: var(--text-muted); }
+        .field-input { 
+            background: transparent; border: none; border-bottom: 1px solid #444; 
+            border-radius: 0; padding: 4px 0; text-align: left; font-family: 'Consolas', monospace; font-size: 1em;
+        }
+        .field-input:focus { border-bottom-color: var(--accent); background: transparent; box-shadow: none; }
+
+        /* 手机端底部删除按钮 */
+        .btn-card-delete {
+            width: calc(100% + 30px); /* 填满卡片宽度 */
+            margin-left: -15px; /* 抵消卡片padding */
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff6666;
+            border: none;
+            border-top: 1px solid rgba(255, 68, 68, 0.2);
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+        .btn-card-delete:active { background: rgba(255, 68, 68, 0.3); color: #fff; }
+
+        /* --- 悬浮按钮与模态框 --- */
+        .float-save { 
+            position: fixed; bottom: 25px; right: 25px; 
+            background: var(--accent); color: #000; 
+            width: 55px; height: 55px; border-radius: 50%; 
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; z-index: 999; cursor: pointer; border: 2px solid #fff;
+        }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #1e1e1e; padding: 25px; border-radius: 16px; width: 85%; max-width: 400px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 15px; }
+
         @media screen and (max-width: 768px) {
-            .table-view { display: none; } /* 手机端隐藏表格 */
-            .card-list-view { display: flex; } /* 手机端显示卡片流 */
-            
+            .table-view { display: none; }
+            .card-list-view { display: flex; }
             .input-area { grid-template-columns: 1fr 1fr; }
             .input-area input:nth-child(1), .input-area input:nth-child(2) { grid-column: span 2; }
-            
-            h1 { font-size: 1.2rem; }
-            .visual-module { flex-direction: column; }
-            .chart-box { height: 250px; }
-            
-            /* 手机端悬浮保存按钮 */
-            .float-save { 
-                position: fixed; bottom: 20px; right: 20px; 
-                background: var(--accent); color: #000; 
-                width: 60px; height: 60px; border-radius: 50%; 
-                box-shadow: 0 4px 20px rgba(0,212,255, 0.4);
-                display: flex; align-items: center; justify-content: center;
-                font-size: 24px; z-index: 999;
-            }
+            .header-box { text-align: left; display: flex; align-items: center; justify-content: space-between; }
+            h1 { font-size: 1.4rem; margin: 0; }
         }
-
-        /* 设置模态框 */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background: var(--card-bg); padding: 25px; border-radius: 12px; width: 90%; max-width: 400px;
-            display: flex; flex-direction: column; gap: 15px;
-        }
-        .modal h3 { margin: 0 0 10px 0; color: var(--accent); }
     </style>
 </head>
 <body>
@@ -127,32 +185,34 @@
     <!-- 配置模态框 -->
     <div id="configModal" class="modal">
         <div class="modal-content">
-            <h3>🔗 连接 GitHub 数据</h3>
-            <p style="font-size:0.8em; color:#888;">填写后，数据将自动同步到你的 GitHub 私有仓库，实现多端同步。</p>
-            <input type="text" id="cfgToken" placeholder="GitHub Token (ghp_...)" type="password">
+            <h3 style="color:var(--accent); margin:0;">🔗 连接 GitHub</h3>
+            <p style="font-size:0.8em; color:#aaa; margin:0;">配置一次，永久云端同步。</p>
+            <input type="password" id="cfgToken" placeholder="GitHub Token (ghp_...)">
             <input type="text" id="cfgUser" placeholder="用户名 (Username)">
-            <input type="text" id="cfgRepo" placeholder="仓库名 (Repository)">
-            <input type="text" id="cfgPath" placeholder="文件名 (例: budget_data.json)" value="budget_data.json">
-            <button onclick="saveConfig()" style="background:var(--accent); padding:10px;">保存连接</button>
-            <button onclick="closeModal()" style="background:#333; padding:10px; color:#ccc;">暂不连接 (本地模式)</button>
+            <input type="text" id="cfgRepo" placeholder="仓库名 (Repo Name)">
+            <input type="text" id="cfgPath" placeholder="文件名" value="budget_data.json">
+            <button onclick="saveConfig()" class="btn-add">确认连接</button>
+            <button onclick="closeModal()" style="background:transparent; color:#888; border:none; padding:10px;">暂不连接 (本地模式)</button>
         </div>
     </div>
 
     <div class="container">
-        <!-- 顶部状态栏 -->
-        <div class="config-bar">
-            <div style="margin-right: auto; display:flex; align-items:center;">
-                <span id="statusDot" class="status-dot"></span>
-                <span id="statusText" style="font-size:0.8rem; color:#666;">本地模式</span>
+        <!-- 头部 -->
+        <div class="header-box">
+            <h1>装修预算 <span class="version-tag" id="verTag"></span></h1>
+            
+            <div class="config-bar">
+                <div style="margin-right: auto; display:flex; align-items:center;">
+                    <span id="statusDot" class="status-dot"></span>
+                    <span id="statusText" style="font-size:0.8rem; color:#888;">检测中...</span>
+                </div>
+                <button class="btn-config" onclick="openModal()">⚙️ 设置</button>
+                <button class="btn-config" onclick="syncData(true)">🔄 拉取</button>
             </div>
-            <button class="btn-config" onclick="openModal()">⚙️ 设置云同步</button>
-            <button class="btn-config" onclick="syncData(true)">🔄 强制拉取</button>
         </div>
 
-        <h1>装修预算控制台 <span style="font-size:0.5em; vertical-align:middle; color:#555;">PRO</span></h1>
-
-        <!-- 视觉统计模块 -->
-        <div class="card visual-module">
+        <!-- 视觉统计模块 (Glass Panel) -->
+        <div class="glass-card visual-module">
             <div class="chart-box">
                 <canvas id="budgetChart"></canvas>
             </div>
@@ -160,15 +220,24 @@
                 <!-- JS生成进度条 -->
             </div>
             <div class="total-summary">
-                <div>总预算 <br><span id="txtTotal" class="money">0</span></div>
-                <div>已支付 <br><span id="txtPaid" class="money" style="color:#00ff88">0</span></div>
-                <div>剩余 <br><span id="txtRemain" class="money" style="color:#888">0</span></div>
+                <div class="summary-item">
+                    <span class="summary-label">总预算</span>
+                    <span id="txtTotal" class="money">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">已支付</span>
+                    <span id="txtPaid" class="money" style="color:#00ff88; text-shadow:0 0 10px rgba(0,255,136,0.3)">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">剩余应付</span>
+                    <span id="txtRemain" class="money" style="color:#888">0</span>
+                </div>
             </div>
         </div>
 
-        <!-- 数据管理模块 -->
-        <div class="card">
-            <h2>支出明细</h2>
+        <!-- 录入与列表 (Glass Panel) -->
+        <div class="glass-card">
+            <h2 style="margin-top:0; font-weight:300; font-size:1.2rem; color:var(--accent); border-bottom:1px solid var(--glass-border); padding-bottom:10px; margin-bottom:15px;">📋 支出明细</h2>
             
             <!-- 录入区 -->
             <div class="input-area">
@@ -181,10 +250,10 @@
                 <input type="number" id="inDeposit" placeholder="定金">
                 <input type="number" id="inSecond" placeholder="次付">
                 <input type="number" id="inFinal" placeholder="尾款">
-                <button class="btn-add" onclick="addNewItem()">+ 添加项目</button>
+                <button class="btn-add" onclick="addNewItem()">+ 添加新项</button>
             </div>
 
-            <!-- PC端视图：表格 -->
+            <!-- PC表格 -->
             <table class="table-view" id="pcTable">
                 <thead>
                     <tr>
@@ -194,120 +263,103 @@
                         <th>定金</th>
                         <th>次付</th>
                         <th>尾款</th>
-                        <th>操作</th>
+                        <th style="text-align:right">操作</th>
                     </tr>
                 </thead>
                 <tbody id="pcTableBody"></tbody>
             </table>
 
-            <!-- 手机端视图：卡片流 -->
+            <!-- 手机卡片列表 -->
             <div class="card-list-view" id="mobileList"></div>
         </div>
     </div>
 
-    <!-- 手机端悬浮保存按钮 (手动触发同步) -->
+    <!-- 悬浮保存 -->
     <div class="float-save" onclick="syncData()" title="保存到云端">💾</div>
 
     <script>
-        // --- 1. 数据与状态管理 ---
+        // --- 版本控制 ---
+        const VERSION = "v1.1";
+        document.getElementById('verTag').innerText = VERSION;
+
+        // --- 数据变量 ---
         let expenses = [];
         let githubConfig = JSON.parse(localStorage.getItem('gh_config')) || null;
-        let fileSha = null; // 用于GitHub API更新文件
+        let fileSha = null;
         let myChart = null;
 
-        // 初始化
+        // --- 颜色配置 (Neon Palette) ---
+        const COLORS = [
+            '#00d4ff', // 青色
+            '#ff00cc', // 洋红
+            '#ffe600', // 黄色
+            '#00ff88', // 绿色
+            '#ff6600', // 橙色
+            '#9933ff'  // 紫色
+        ];
+
         window.onload = function() {
             if (!githubConfig) {
-                setTimeout(openModal, 500); // 首次进入弹窗
+                setStatus('offline', '本地模式');
+                setTimeout(openModal, 800);
                 loadLocal();
             } else {
-                syncData(true); // 有配置则尝试拉取
+                syncData(true);
             }
         };
 
-        // --- 2. 核心逻辑：GitHub API 同步 ---
-        
-        // 读取数据 (Pull)
-        async function syncData(forcePull = false) {
-            if (!githubConfig) {
-                renderUI(); 
-                return;
-            }
+        // --- 核心逻辑 ---
 
-            setStatus('syncing', '正在同步...');
+        async function syncData(forcePull = false) {
+            if (!githubConfig) { renderUI(); return; }
+            setStatus('syncing', '同步中...');
+            
             const { token, user, repo, path } = githubConfig;
             const url = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
 
             try {
-                // 如果不是强制拉取，且是保存操作，则跳过拉取直接推
                 if (forcePull) {
-                    const response = await fetch(url, {
-                        headers: { 
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
+                    const res = await fetch(url, {
+                        headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
                     });
-
-                    if (response.status === 200) {
-                        const data = await response.json();
-                        fileSha = data.sha; // 记录SHA用于后续更新
-                        // Base64解码内容 (支持中文)
+                    if (res.status === 200) {
+                        const data = await res.json();
+                        fileSha = data.sha;
                         const content = decodeURIComponent(escape(window.atob(data.content)));
                         expenses = JSON.parse(content);
-                        console.log('从GitHub拉取成功');
-                    } else if (response.status === 404) {
-                        console.log('文件不存在，将新建');
-                        fileSha = null;
-                    }
+                    } else { fileSha = null; }
                 } else {
-                    // 推送数据 (Push)
-                    await pushToGithub(url, token);
+                    // Push
+                    const content = btoa(unescape(encodeURIComponent(JSON.stringify(expenses, null, 2))));
+                    const body = { message: `Update budget ${VERSION}`, content: content };
+                    if (fileSha) body.sha = fileSha;
+                    
+                    const res = await fetch(url, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        fileSha = data.content.sha;
+                    } else { throw new Error('Push error'); }
                 }
-                
-                setStatus('online', '云端同步完成');
-                localStorage.setItem('local_backup', JSON.stringify(expenses)); // 本地备份
+                setStatus('online', '已同步');
+                localStorage.setItem('local_backup', JSON.stringify(expenses));
                 renderUI();
-
-            } catch (error) {
-                console.error(error);
-                setStatus('offline', '同步失败，使用本地数据');
+            } catch (e) {
+                console.error(e);
+                setStatus('offline', '离线 (本地数据)');
                 loadLocal();
             }
         }
 
-        // 写入数据 (Push)
-        async function pushToGithub(url, token) {
-            const content = btoa(unescape(encodeURIComponent(JSON.stringify(expenses, null, 2))));
-            const body = {
-                message: "Update budget data via WebApp",
-                content: content
-            };
-            if (fileSha) body.sha = fileSha;
-
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                fileSha = data.content.sha; // 更新SHA
-            } else {
-                throw new Error('Push failed');
-            }
-        }
-
-        // 本地降级方案
         function loadLocal() {
             expenses = JSON.parse(localStorage.getItem('local_backup')) || [];
             renderUI();
         }
 
-        // --- 3. UI 渲染逻辑 (双视图) ---
+        // --- 渲染 UI ---
 
         function renderUI() {
             renderPC();
@@ -315,179 +367,178 @@
             renderCharts();
         }
 
-        // 渲染 PC 表格
         function renderPC() {
             const tbody = document.getElementById('pcTableBody');
             tbody.innerHTML = '';
             expenses.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><input value="${item.type}" onchange="updateItem(${index}, 'type', this.value)"></td>
-                    <td><input value="${item.name}" onchange="updateItem(${index}, 'name', this.value)"></td>
-                    <td><input type="number" value="${item.total}" onchange="updateItem(${index}, 'total', this.value)"></td>
-                    <td><input type="number" value="${item.deposit}" onchange="updateItem(${index}, 'deposit', this.value)"></td>
-                    <td><input type="number" value="${item.second}" onchange="updateItem(${index}, 'second', this.value)"></td>
-                    <td><input type="number" value="${item.final}" onchange="updateItem(${index}, 'final', this.value)"></td>
-                    <td><button onclick="delItem(${index})" style="color:var(--danger)">×</button></td>
+                    <td><input value="${item.type}" onchange="upd(${index}, 'type', this.value)"></td>
+                    <td><input value="${item.name}" onchange="upd(${index}, 'name', this.value)"></td>
+                    <td><input type="number" value="${item.total}" onchange="upd(${index}, 'total', this.value)"></td>
+                    <td><input type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)"></td>
+                    <td><input type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)"></td>
+                    <td><input type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)"></td>
+                    <td style="text-align:right"><button onclick="del(${index})" style="color:var(--danger); background:none; border:1px solid #555; padding:5px 10px;">×</button></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // 渲染 手机 卡片
+        // 优化后的手机端渲染
         function renderMobile() {
             const container = document.getElementById('mobileList');
             container.innerHTML = '';
             expenses.forEach((item, index) => {
+                const color = COLORS[index % COLORS.length];
                 const paid = (parseFloat(item.deposit)||0) + (parseFloat(item.second)||0) + (parseFloat(item.final)||0);
-                const progress = item.total > 0 ? (paid / item.total * 100).toFixed(0) : 0;
-                
+                const progress = item.total > 0 ? Math.round(paid / item.total * 100) : 0;
+
                 const div = document.createElement('div');
                 div.className = 'item-card';
-                div.style.borderLeftColor = getColor(index);
+                div.style.setProperty('--item-color', color);
+                
                 div.innerHTML = `
-                    <button class="btn-del-card" onclick="delItem(${index})">×</button>
                     <div class="item-header">
-                        <span>${item.name} <small style="font-weight:normal; font-size:0.7em; background:#333; padding:2px 5px; border-radius:4px;">${item.type}</small></span>
-                        <span style="color:${progress >= 100 ? '#00ff88' : '#fff'}">${progress}%</span>
+                        <div>
+                            ${item.name} 
+                            <span class="type-badge" style="color:${color}; border:1px solid ${color}">${item.type}</span>
+                        </div>
+                        <span style="color:${progress>=100?'#00ff88':'#888'}; font-size:0.9em;">
+                            ${progress}%
+                        </span>
                     </div>
-                    <div class="item-row">
-                        <span>总预算</span>
-                        <input type="number" value="${item.total}" onchange="updateItem(${index}, 'total', this.value)">
+
+                    <div class="item-body">
+                        <div class="field-group">
+                            <span class="field-label">总预算</span>
+                            <input class="field-input" type="number" value="${item.total}" onchange="upd(${index}, 'total', this.value)" style="color:var(--accent)">
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">定金</span>
+                            <input class="field-input" type="number" value="${item.deposit}" onchange="upd(${index}, 'deposit', this.value)">
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">次付</span>
+                            <input class="field-input" type="number" value="${item.second}" onchange="upd(${index}, 'second', this.value)">
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">尾款</span>
+                            <input class="field-input" type="number" value="${item.final}" onchange="upd(${index}, 'final', this.value)">
+                        </div>
                     </div>
-                    <div class="item-row">
-                        <span>定金</span>
-                        <input type="number" value="${item.deposit}" onchange="updateItem(${index}, 'deposit', this.value)">
-                    </div>
-                    <div class="item-row">
-                        <span>次付</span>
-                        <input type="number" value="${item.second}" onchange="updateItem(${index}, 'second', this.value)">
-                    </div>
-                    <div class="item-row">
-                        <span>尾款</span>
-                        <input type="number" value="${item.final}" onchange="updateItem(${index}, 'final', this.value)">
-                    </div>
+
+                    <button class="btn-card-delete" onclick="del(${index})">🗑️ 删除此项</button>
                 `;
                 container.appendChild(div);
             });
         }
 
-        // 渲染 图表
         function renderCharts() {
-            // 数据聚合
-            let totalBudget = 0, totalPaid = 0;
-            const typeStats = {};
+            let total = 0, paid = 0;
+            const stats = {};
 
             expenses.forEach(item => {
                 const t = parseFloat(item.total) || 0;
                 const p = (parseFloat(item.deposit)||0) + (parseFloat(item.second)||0) + (parseFloat(item.final)||0);
-                totalBudget += t;
-                totalPaid += p;
-
-                if(!typeStats[item.type]) typeStats[item.type] = { total: 0, paid: 0 };
-                typeStats[item.type].total += t;
-                typeStats[item.type].paid += p;
+                total += t; paid += p;
+                if(!stats[item.type]) stats[item.type] = 0;
+                stats[item.type] += t;
             });
 
-            // 更新文本
-            document.getElementById('txtTotal').innerText = totalBudget.toLocaleString();
-            document.getElementById('txtPaid').innerText = totalPaid.toLocaleString();
-            document.getElementById('txtRemain').innerText = (totalBudget - totalPaid).toLocaleString();
+            document.getElementById('txtTotal').innerText = total.toLocaleString();
+            document.getElementById('txtPaid').innerText = paid.toLocaleString();
+            document.getElementById('txtRemain').innerText = (total - paid).toLocaleString();
 
-            // 1. 饼图
+            // 饼图
             const ctx = document.getElementById('budgetChart').getContext('2d');
-            const labels = Object.keys(typeStats);
-            const data = labels.map(k => typeStats[k].total);
-            const bgColors = labels.map((_, i) => getColor(i));
+            const labels = Object.keys(stats);
+            const data = labels.map(k => stats[k]);
+            const bgColors = labels.map((_, i) => COLORS[i % COLORS.length]);
 
             if(myChart) myChart.destroy();
+            
+            // 3D/Glass Chart Config
             myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: labels,
-                    datasets: [{ data: data, backgroundColor: bgColors, borderWidth: 0 }]
+                    datasets: [{
+                        data: data,
+                        backgroundColor: bgColors,
+                        borderWidth: 0,
+                        hoverOffset: 15, // 悬浮凸起
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0,0,0,0.5)'
+                    }]
                 },
                 options: {
                     maintainAspectRatio: false,
+                    layout: { padding: 20 },
+                    elements: {
+                        arc: {
+                            borderWidth: 0
+                        }
+                    },
                     plugins: { 
-                        legend: { position: 'right', labels: { color: '#ccc' } } 
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                color: '#ccc', 
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            } 
+                        } 
                     }
                 }
             });
 
-            // 2. 进度条列表
-            const barContainer = document.getElementById('progressBarContainer');
-            barContainer.innerHTML = '';
+            // 进度条
+            const barCont = document.getElementById('progressBarContainer');
+            barCont.innerHTML = '';
             
-            // 总进度
-            const totalPct = totalBudget > 0 ? (totalPaid/totalBudget*100) : 0;
-            addProgressBar(barContainer, '总体资金流出', totalPct, '#00d4ff');
+            // 总体进度
+            const totalPct = total > 0 ? (paid/total*100) : 0;
+            addBar(barCont, '总支付进度', totalPct, '#00ff88');
 
-            // 分类占比
             labels.forEach((type, i) => {
-                const typePct = totalBudget > 0 ? (typeStats[type].total / totalBudget * 100) : 0;
-                addProgressBar(barContainer, `${type} 占总预算`, typePct, bgColors[i]);
+                const pct = total > 0 ? (stats[type] / total * 100) : 0;
+                addBar(barCont, `${type} 占比`, pct, COLORS[i % COLORS.length]);
             });
         }
 
-        function addProgressBar(container, label, percent, color) {
-            const html = `
-                <div class="progress-group">
-                    <div class="progress-labels">
-                        <span>${label}</span>
-                        <span>${percent.toFixed(1)}%</span>
-                    </div>
-                    <div class="progress-track">
-                        <div class="progress-fill" style="width:${percent}%; background:${color}"></div>
-                    </div>
+        function addBar(container, label, pct, color) {
+            const div = document.createElement('div');
+            div.className = 'progress-group';
+            div.innerHTML = `
+                <div class="progress-labels">
+                    <span>${label}</span>
+                    <span>${pct.toFixed(1)}%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:${pct}%; background:${color}; box-shadow: 0 0 10px ${color}"></div>
                 </div>
             `;
-            container.insertAdjacentHTML('beforeend', html);
+            container.appendChild(div);
         }
 
-        // --- 4. 交互操作 ---
-
+        // --- 辅助函数 ---
+        function upd(i, k, v) { expenses[i][k] = v; renderCharts(); syncData(); }
+        function del(i) { if(confirm('确认删除?')) { expenses.splice(i, 1); syncData(); } }
         function addNewItem() {
-            const item = {
-                type: document.getElementById('inType').value || '未分类',
+            expenses.push({ 
+                type: document.getElementById('inType').value || '未分类', 
                 name: document.getElementById('inName').value || '新项目',
                 total: document.getElementById('inTotal').value || 0,
-                deposit: document.getElementById('inDeposit').value || 0,
-                second: document.getElementById('inSecond').value || 0,
-                final: document.getElementById('inFinal').value || 0
-            };
-            expenses.push(item);
-            
-            // 清空输入
-            ['inName','inTotal','inDeposit','inSecond','inFinal'].forEach(id => document.getElementById(id).value = '');
-            
-            syncData(); // 自动保存
+                deposit: 0, second: 0, final: 0
+            });
+            ['inName','inTotal','inDeposit','inSecond','inFinal'].forEach(id=>document.getElementById(id).value='');
+            syncData();
         }
-
-        function updateItem(index, key, val) {
-            expenses[index][key] = val;
-            // 简单防抖，避免每次输入都请求API，延迟1秒保存，如果只是本地改UI则立即
-            renderCharts(); 
-            // 注意：实际项目中建议增加Save按钮或Debounce，这里为了简化，每次失焦(onchange)会触发同步
-            syncData(); 
-        }
-
-        function delItem(index) {
-            if(confirm('删除此项?')) {
-                expenses.splice(index, 1);
-                syncData();
-            }
-        }
-
-        function sortData(key) {
-            expenses.sort((a,b) => (a[key] > b[key] ? 1 : -1));
-            renderUI();
-        }
-
-        // --- 5. 配置辅助 ---
-        function openModal() { document.getElementById('configModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('configModal').style.display = 'none'; }
-        
+        function sortData(k) { expenses.sort((a,b)=>(a[k]>b[k]?1:-1)); renderUI(); }
+        function openModal() { document.getElementById('configModal').style.display='flex'; }
+        function closeModal() { document.getElementById('configModal').style.display='none'; }
         function saveConfig() {
             githubConfig = {
                 token: document.getElementById('cfgToken').value,
@@ -497,22 +548,12 @@
             };
             localStorage.setItem('gh_config', JSON.stringify(githubConfig));
             closeModal();
-            syncData(true); // 立即尝试拉取
+            syncData(true);
         }
-
-        function setStatus(state, text) {
-            const dot = document.getElementById('statusDot');
-            const txt = document.getElementById('statusText');
-            dot.className = `status-dot ${state}`;
-            txt.innerText = text;
+        function setStatus(cls, txt) {
+            document.getElementById('statusDot').className = `status-dot ${cls}`;
+            document.getElementById('statusText').innerText = txt;
         }
-
-        // 颜色生成器
-        function getColor(i) {
-            const palette = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
-            return palette[i % palette.length];
-        }
-
     </script>
 </body>
 </html>
